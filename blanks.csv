@@ -1,0 +1,13 @@
+sample_ID,counter,particle_number,counter_ID,comments,spectroscopy_analyst,spectroscopy_method,ID,measured_by,length,width,file_name,aspect_ratio
+LB1,,NA,,,,,,,,,,
+LB10,,NA,,,,,,,,,,
+LB11,,NA,,,,,,,,,,
+LB12,,NA,,,,,,,,,,
+LB2,,NA,,,,,,,,,,
+LB3,,NA,,,,,,,,,,
+LB4,,NA,,,,,,,,,,
+LB5,,NA,,,,,,,,,,
+LB6,,NA,,,,,,,,,,
+LB7,Mira,1,PE,Unsure if ELA Plastic,Gloria,Raman,PE,Mira,0.466,0.064,LB-7_1,7.28125
+LB8,,NA,,,,,,,,,,
+LB9,,NA,,,,,,,,,,
