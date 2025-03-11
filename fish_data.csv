@@ -20,7 +20,7 @@ C_10_GIT,C,C10,GIT,Maddy,12,PS,,Gloria,Raman,PS,,,Mira,0.115,0.076,C_10_GIT_12,,
 C_10_GIT,C,C10,GIT,Maddy,13,PE,,Gloria,Raman,PE,,,Mira,0.196,0.149,C_10_GIT_13,,1.315436242
 C_10_L,C,C10,Liver,,NA,NA,,,NA,NA,,,,,,,,
 C_11_F,C,C11,Fillet,,NA,NA,,,NA,NA,,,,,,,,
-C_11_G,C,C11,Gill,Mira,1,unknown,Unsure if ELA Plastic,Gloria,Raman,unknown,,,Mira,0.2,0.118,C_11_G_1,,1.694915254
+C_11_G,C,C11,Gill,Mira,1,PET,Unsure if ELA Plastic,Gloria,Raman,unknown,,,Mira,0.2,0.118,C_11_G_1,,1.694915254
 C_11_GIT,C,C11,GIT,Maddy,1,PS,,Gloria,Raman,PS,,,Mira,0.131,0.097,C_11_GIT_1,,1.350515464
 C_11_GIT,C,C11,GIT,Maddy,2,PE,,Gloria,Raman,PE,,,Mira,0.303,0.226,C_11_GIT_2,,1.340707965
 C_11_GIT,C,C11,GIT,Maddy,3,PS,,Gloria,Raman,PS,,,Mira,0.085,0.061,C_11_GIT_3,,1.393442623
@@ -37,17 +37,17 @@ C_11_GIT,C,C11,GIT,Maddy,13,unknown,,Gloria,Raman,Quartz,,,Mira,0.064,0.045,C_11
 C_11_L,C,C11,Liver,,NA,NA,,,NA,NA,,,,,,,,
 C_9_F,C,C9,Fillet,Mira,1,PS,,Mira,FTIR,PP,,,Mira,0.26,0.108,C_9_F_1,,2.407407407
 C_9_G,C,C9,Gill,,NA,NA,,,NA,NA,,,,,,,,
-C_9_GIT,C,C9,GIT,Maddy,1,unknown,,Gloria,Raman,PET,,,Mira,0.358,0.198,C_9_GIT_1,,1.808080808
-C_9_GIT,C,C9,GIT,Maddy,2,unknown,,Gloria,Raman,PET,,,Mira,0.455,0.286,C_9_GIT_2,,1.590909091
-C_9_GIT,C,C9,GIT,Maddy,3,unknown,,Gloria,Raman,PET,,,Mira,0.333,0.293,C_9_GIT_3,,1.136518771
+C_9_GIT,C,C9,GIT,Maddy,1,PET,,Gloria,Raman,PET,,,Mira,0.358,0.198,C_9_GIT_1,,1.808080808
+C_9_GIT,C,C9,GIT,Maddy,2,PET,,Gloria,Raman,PET,,,Mira,0.455,0.286,C_9_GIT_2,,1.590909091
+C_9_GIT,C,C9,GIT,Maddy,3,PET,,Gloria,Raman,PET,,,Mira,0.333,0.293,C_9_GIT_3,,1.136518771
 C_9_GIT,C,C9,GIT,Maddy,4,PS,,Gloria,Raman,PS,,,Mira,0.154,0.132,C_9_GIT_4,,1.166666667
 C_9_GIT,C,C9,GIT,Maddy,5,PE,,Gloria,Raman,PE,,,Mira,0.329,0.152,C_9_GIT_5,,2.164473684
-C_9_GIT,C,C9,GIT,Maddy,6,unknown,,Gloria,Raman,PET,,,Mira,0.424,0.332,C_9_GIT_6,,1.277108434
+C_9_GIT,C,C9,GIT,Maddy,6,PET,,Gloria,Raman,PET,,,Mira,0.424,0.332,C_9_GIT_6,,1.277108434
 C_9_GIT,C,C9,GIT,Maddy,7,PE,,Gloria,Raman,PE,,,Mira,0.433,0.345,C_9_GIT_7,,1.255072464
-C_9_GIT,C,C9,GIT,Maddy,8,unknown,,Gloria,Raman,Cellulosic,,,Mira,0.181,0.093,C_9_GIT_8,,1.946236559
+C_9_GIT,C,C9,GIT,Maddy,8,PET,,Gloria,Raman,Cellulosic,,,Mira,0.181,0.093,C_9_GIT_8,,1.946236559
 C_9_GIT,C,C9,GIT,Maddy,9,PE,,Gloria,Raman,PE,,,Mira,0.409,0.166,C_9_GIT_9,,2.463855422
 C_9_GIT,C,C9,GIT,Maddy,10,PE,,Gloria,Raman,PE,,,Mira,0.117,0.099,C_9_GIT_10,,1.181818182
-C_9_GIT,C,C9,GIT,Maddy,11,unknown,,Gloria,Raman,PET,,,Mira,0.348,0.163,C_9_GIT_11,,2.134969325
+C_9_GIT,C,C9,GIT,Maddy,11,PET,,Gloria,Raman,PET,,,Mira,0.348,0.163,C_9_GIT_11,,2.134969325
 C_9_L,C,C9,Liver,,NA,NA,,,NA,NA,,,,,,,,
 D_7_G,D,D17,Gill,Mira,1,PS,,Gloria,Raman,PS,,,Mira,0.084,0.079,D_7_G_1,,1.063291139
 D_7_F,D,D7,Fillet,Mira,1,PS,,Gloria,Raman,PP,,,Mira,0.299,0.042,D_7_F_1,,7.119047619
@@ -60,7 +60,7 @@ D_7_F,D,D7,Fillet,Mira,7,PS,,Gloria,Raman,PP,,,Mira,0.127,0.091,D_7_F_7,,1.39560
 D_7_F,D,D7,Fillet,Mira,8,PS,There are 6 particles here. The extra 5 were added to the tally,Gloria,Raman,PP,,,Mira,0.12,0.048,D_7_F_8,measured leftmost particle,2.5
 D_7_F,D,D7,Fillet,Mira,9,PS,,Gloria,Raman,PP,,,Mira,0.207,0.051,D_7_F_9,,4.058823529
 D_7_F,D,D7,Fillet,Mira,10,PS,,Gloria,Raman,PP,,,Mira,0.342,0.148,D_7_F_10,,2.310810811
-D_7_F,D,D7,Fillet,Mira,11,unknown,,Gloria,Raman,No match,,,Mira,,,D_7_F_11,missing,
+D_7_F,D,D7,Fillet,Mira,11,PET,,Gloria,Raman,No match,,,Mira,,,D_7_F_11,missing,
 D_7_F,D,D7,Fillet,Mira,12,PS,,,NA,NA,,,,,,,,
 D_7_F,D,D7,Fillet,Mira,13,PS,,,NA,NA,,,,,,,,
 D_7_F,D,D7,Fillet,Mira,14,PS,,,NA,NA,,,,,,,,
@@ -97,20 +97,20 @@ D_7_F,D,D7,Fillet,Mira,44,PS,,,NA,NA,,,,,,,,
 D_7_F,D,D7,Fillet,Mira,45,PS,,,NA,NA,,,,,,,,
 D_7_F,D,D7,Fillet,Mira,46,PS,,,NA,NA,,,,,,,,
 D_7_GIT,D,D7,GIT,Maddy,1,PS,,Gloria,Raman,PS,,,Mira,0.773,0.68,D_7_GIT_1,,1.136764706
-D_7_GIT,D,D7,GIT,Maddy,2,unknown,,Gloria,Raman,PET,,,Mira,0.281,0.229,D_7_GIT_2,,1.227074236
-D_7_GIT,D,D7,GIT,Maddy,3,unknown,,Gloria,Raman,PET,,,Mira,0.25,0.204,D_7_GIT_3,,1.225490196
+D_7_GIT,D,D7,GIT,Maddy,2,PET,,Gloria,Raman,PET,,,Mira,0.281,0.229,D_7_GIT_2,,1.227074236
+D_7_GIT,D,D7,GIT,Maddy,3,PET,,Gloria,Raman,PET,,,Mira,0.25,0.204,D_7_GIT_3,,1.225490196
 D_7_GIT,D,D7,GIT,Maddy,4,PS,,Gloria,Raman,PS,,,Mira,0.541,0.412,D_7_GIT_4,,1.313106796
 D_7_GIT,D,D7,GIT,Maddy,5,PS,,Gloria,Raman,PS,,,Mira,0.786,0.557,D_7_GIT_5,,1.411131059
-D_7_GIT,D,D7,GIT,Maddy,6,unknown,,Gloria,Raman,PET,,,Mira,0.873,0.276,D_7_GIT_6,,3.163043478
+D_7_GIT,D,D7,GIT,Maddy,6,PET,,Gloria,Raman,PET,,,Mira,0.873,0.276,D_7_GIT_6,,3.163043478
 D_7_GIT,D,D7,GIT,Maddy,7,PS,,Gloria,Raman,PS,,,Mira,0.548,0.467,D_7_GIT_7,,1.173447537
 D_7_GIT,D,D7,GIT,Maddy,8,PS,,Gloria,Raman,PS,,,Mira,0.236,0.144,D_7_GIT_8,"2 particles visible, measured leftmost one",1.638888889
 D_7_GIT,D,D7,GIT,Maddy,9,PE,,Gloria,Raman,PE,,,Mira,0.302,0.209,D_7_GIT_9,,1.444976077
 D_7_GIT,D,D7,GIT,Maddy,10,PS,,Gloria,Raman,PS,,,Mira,0.409,0.353,D_7_GIT_10,,1.158640227
-D_7_GIT,D,D7,GIT,Maddy,11,unknown,,Gloria,Raman,PET,,,Mira,0.255,0.177,D_7_GIT_11,,1.440677966
+D_7_GIT,D,D7,GIT,Maddy,11,PET,,Gloria,Raman,PET,,,Mira,0.255,0.177,D_7_GIT_11,,1.440677966
 D_7_GIT,D,D7,GIT,Maddy,12,PS,,Gloria,Raman,PS,,,Mira,0.58,0.347,D_7_GIT_12,,1.671469741
 D_7_GIT,D,D7,GIT,Maddy,13,PS,,Gloria,Raman,PS,,,Mira,0.283,0.267,D_7_GIT_13,,1.059925094
 D_7_GIT,D,D7,GIT,Maddy,14,PS,,Gloria,Raman,PS,,,Mira,0.554,0.476,D_7_GIT_14,,1.163865546
-D_7_GIT,D,D7,GIT,Maddy,15,unknown,,Gloria,Raman,PET,,,Mira,0.308,0.295,D_7_GIT_15,,1.044067797
+D_7_GIT,D,D7,GIT,Maddy,15,PET,,Gloria,Raman,PET,,,Mira,0.308,0.295,D_7_GIT_15,,1.044067797
 D_7_GIT,D,D7,GIT,Maddy,16,PS,,Gloria,Raman,PS,,,Mira,0.675,0.419,D_7_GIT_16,,1.61097852
 D_7_GIT,D,D7,GIT,Maddy,17,PE,,Gloria,Raman,PE,,,Mira,0.447,0.256,D_7_GIT_17,,1.74609375
 D_7_GIT,D,D7,GIT,Maddy,18,PE,,Gloria,Raman,PE,,,Mira,0.321,0.258,D_7_GIT_18,,1.244186047
@@ -121,7 +121,7 @@ D_7_GIT,D,D7,GIT,Maddy,22,PE,,Gloria,Raman,PE,,,Mira,0.406,0.232,D_7_GIT_22,,1.7
 D_7_GIT,D,D7,GIT,Maddy,23,PE,,Gloria,Raman,PE,,,Mira,0.474,0.268,D_7_GIT_23,,1.768656716
 D_7_GIT,D,D7,GIT,Maddy,24,PE,,Gloria,Raman,PE,,,Mira,0.378,0.188,D_7_GIT_24,,2.010638298
 D_7_GIT,D,D7,GIT,Maddy,25,PE,,Gloria,Raman,PE,,,Mira,0.52,0.215,D_7_GIT_25,,2.418604651
-D_7_GIT,D,D7,GIT,Maddy,26,unknown,,Gloria,Raman,PET,,,Mira,0.215,0.225,D_7_GIT_26,,0.955555556
+D_7_GIT,D,D7,GIT,Maddy,26,PET,,Gloria,Raman,PET,,,Mira,0.215,0.225,D_7_GIT_26,,0.955555556
 D_7_GIT,D,D7,GIT,Maddy,27,PE,,,NA,NA,,,,,,,,
 D_7_GIT,D,D7,GIT,Maddy,28,PE,,,NA,NA,,,,,,,,
 D_7_GIT,D,D7,GIT,Maddy,29,PE,,,NA,NA,,,,,,,,
@@ -717,13 +717,13 @@ D_9_GIT,D,D9,GIT,Maddy,6,PS,,Garth,Raman,PS,,,Mira,0.421,0.406,D_9_GIT_6,,1.0369
 D_9_GIT,D,D9,GIT,Maddy,7,PS,,Garth,Raman,PS,,,Mira,0.398,0.249,D_9_GIT_7,,1.598393574
 D_9_GIT,D,D9,GIT,Maddy,8,PS,,Garth,Raman,PS,,,Mira,0.454,0.329,D_9_GIT_8,,1.37993921
 D_9_GIT,D,D9,GIT,Maddy,9,PS,,Garth,Raman,PS,,,Mira,0.891,0.395,D_9_GIT_9,,2.255696203
-D_9_GIT,D,D9,GIT,Maddy,10,unknown,,Garth,Raman,PET,,,Mira,0.264,0.138,D_9_GIT_10,,1.913043478
+D_9_GIT,D,D9,GIT,Maddy,10,PET,,Garth,Raman,PET,,,Mira,0.264,0.138,D_9_GIT_10,,1.913043478
 D_9_GIT,D,D9,GIT,Maddy,11,PS,,Garth,Raman,PS,,,Mira,0.357,0.329,D_9_GIT_11,,1.085106383
-D_9_GIT,D,D9,GIT,Maddy,12,unknown,,Garth,Raman,PET,,,Mira,0.304,0.216,D_9_GIT_12,,1.407407407
-D_9_GIT,D,D9,GIT,Maddy,13,unknown,,Garth,Raman,PET,,,Mira,0.273,0.143,D_9_GIT_13,,1.909090909
-D_9_GIT,D,D9,GIT,Maddy,14,unknown,,Garth,Raman,PET,,,Mira,0.281,0.205,D_9_GIT_14,,1.370731707
-D_9_GIT,D,D9,GIT,Maddy,15,unknown,,Garth,Raman,PET,,,Mira,0.384,0.2,D_9_GIT_15,,1.92
-D_9_GIT,D,D9,GIT,Maddy,16,unknown,,Garth,Raman,PET,,,Mira,0.49,0.325,D_9_GIT_16,,1.507692308
+D_9_GIT,D,D9,GIT,Maddy,12,PET,,Garth,Raman,PET,,,Mira,0.304,0.216,D_9_GIT_12,,1.407407407
+D_9_GIT,D,D9,GIT,Maddy,13,PET,,Garth,Raman,PET,,,Mira,0.273,0.143,D_9_GIT_13,,1.909090909
+D_9_GIT,D,D9,GIT,Maddy,14,PET,,Garth,Raman,PET,,,Mira,0.281,0.205,D_9_GIT_14,,1.370731707
+D_9_GIT,D,D9,GIT,Maddy,15,PET,,Garth,Raman,PET,,,Mira,0.384,0.2,D_9_GIT_15,,1.92
+D_9_GIT,D,D9,GIT,Maddy,16,PET,,Garth,Raman,PET,,,Mira,0.49,0.325,D_9_GIT_16,,1.507692308
 D_9_GIT,D,D9,GIT,Maddy,17,PE,,Garth,Raman,PE,,,Mira,0.462,0.395,D_9_GIT_17,,1.169620253
 D_9_GIT,D,D9,GIT,Maddy,18,PE,,Garth,Raman,PE,,,Mira,0.525,0.318,D_9_GIT_18,,1.650943396
 D_9_GIT,D,D9,GIT,Maddy,19,PE,,Garth,Raman,PE,,,Mira,0.574,0.281,D_9_GIT_19,,2.042704626
@@ -734,10 +734,10 @@ D_9_GIT,D,D9,GIT,Maddy,23,PE,,Garth,Raman,PE,,,Mira,0.466,0.296,D_9_GIT_23,,1.57
 D_9_GIT,D,D9,GIT,Maddy,24,PE,,Garth,Raman,PE,,,Mira,0.527,0.227,D_9_GIT_24,,2.321585903
 D_9_GIT,D,D9,GIT,Maddy,25,PE,,Garth,Raman,PE,,,Mira,0.529,0.339,D_9_GIT_25,,1.560471976
 D_9_GIT,D,D9,GIT,Maddy,26,PE,,Garth,Raman,PE,,,Mira,0.453,0.271,D_9_GIT_26,,1.671586716
-D_9_GIT,D,D9,GIT,Maddy,27,unknown,,Garth,Raman,PET,,,Mira,0.193,0.162,D_9_GIT_27,,1.191358025
-D_9_GIT,D,D9,GIT,Maddy,28,unknown,,Garth,Raman,PET,,,Mira,0.586,0.161,D_9_GIT_28,,3.639751553
-D_9_GIT,D,D9,GIT,Maddy,29,unknown,,Garth,Raman,PET,,,Mira,0.199,0.113,D_9_GIT_29,,1.761061947
-D_9_GIT,D,D9,GIT,Maddy,30,unknown,,Garth,Raman,PET,,,Mira,0.412,0.158,D_9_GIT_30,,2.607594937
+D_9_GIT,D,D9,GIT,Maddy,27,PET,,Garth,Raman,PET,,,Mira,0.193,0.162,D_9_GIT_27,,1.191358025
+D_9_GIT,D,D9,GIT,Maddy,28,PET,,Garth,Raman,PET,,,Mira,0.586,0.161,D_9_GIT_28,,3.639751553
+D_9_GIT,D,D9,GIT,Maddy,29,PET,,Garth,Raman,PET,,,Mira,0.199,0.113,D_9_GIT_29,,1.761061947
+D_9_GIT,D,D9,GIT,Maddy,30,PET,,Garth,Raman,PET,,,Mira,0.412,0.158,D_9_GIT_30,,2.607594937
 D_9_GIT,D,D9,GIT,Maddy,31,PE,,,NA,NA,,,,,,,,
 D_9_GIT,D,D9,GIT,Maddy,32,PE,,,NA,NA,,,,,,,,
 D_9_GIT,D,D9,GIT,Maddy,33,PE,,,NA,NA,,,,,,,,
@@ -1259,16 +1259,16 @@ D_9_GIT,D,D9,GIT,Maddy,548,PS,,,NA,NA,,,,,,,,
 D_9_GIT,D,D9,GIT,Maddy,549,PS,,,NA,NA,,,,,,,,
 D_9_GIT,D,D9,GIT,Maddy,550,PS,,,NA,NA,,,,,,,,
 D_9_GIT,D,D9,GIT,Maddy,551,PS,,,NA,NA,,,,,,,,
-D_9_GIT,D,D9,GIT,Maddy,552,unknown,,,NA,NA,,,,,,,,
-D_9_GIT,D,D9,GIT,Maddy,553,unknown,,,NA,NA,,,,,,,,
-D_9_GIT,D,D9,GIT,Maddy,554,unknown,,,NA,NA,,,,,,,,
+D_9_GIT,D,D9,GIT,Maddy,552,PET,,,NA,NA,,,,,,,,
+D_9_GIT,D,D9,GIT,Maddy,553,PET,,,NA,NA,,,,,,,,
+D_9_GIT,D,D9,GIT,Maddy,554,PET,,,NA,NA,,,,,,,,
 D_9_L,D,D9,Liver,Mira,1,PE,,Mira,FTIR,PE,,,Mira,0.149,0.074,D_9_L_1,,2.013513514
 E_10_F,E,E10,Fillet,Mira,1,PS,"Very thin, almost film",Mira,FTIR,PP,,,Mira,0.276,0.15,E_10_F_1,,1.84
 E_10_G,E,E10,Gill,,NA,NA,,,NA,NA,,,,,,,,
 E_10_GIT,E,E10,GIT,,NA,NA,,,NA,NA,,,,,,,,
 E_10_L,E,E10,Liver,,NA,NA,,,NA,NA,,,,,,,,
 E_11_F,E,E11,Fillet,,NA,NA,,,NA,NA,,,,,,,,
-E_11_G,E,E11,Gill,Mira,1,unknown,,Mira,FTIR,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.193,0.213,E_11_G_1,,0.906103286
+E_11_G,E,E11,Gill,Mira,1,PET,,Mira,FTIR,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.193,0.213,E_11_G_1,,0.906103286
 E_11_GIT,E,E11,GIT,Mira,1,PS,,Gloria,Raman,PS,,,Mira,0.428,0.271,E_11_GIT_1,,1.579335793
 E_11_L,E,E11,Liver,,NA,NA,,,NA,NA,,,,,,,,
 E_12_F,E,E12,Fillet,,NA,NA,,,NA,NA,,,,,,,,
@@ -1280,14 +1280,14 @@ E_2_G,E,E2,Gill,,NA,NA,,,NA,NA,,,,,,,,
 E_2_GIT,E,E2,GIT,Mira,1,PE,Squishy - more so than usual,Gloria,Raman,PE,,,Mira,0.338,0.198,E_2_GIT_1,,1.707070707
 E_2_GIT,E,E2,GIT,Mira,2,PE,Squishy - more so than usual,Gloria,Raman,PE,,,Mira,0.466,0.168,E_2_GIT_2,,2.773809524
 E_2_L,E,E2,Liver,,NA,NA,,,NA,NA,,,,,,,,
-E_9_F,E,E9,Fillet,Mira,1,unknown,"Don't look like ELA plastic, but unsure",Mira,FTIR,Cellulosic,,,Mira,0.439,0.221,E_9_F_1,,1.986425339
-E_9_F,E,E9,Fillet,Mira,2,unknown,"Don't look like ELA plastic, but unsure",Mira,FTIR,Fibrose viscose dyed,,,Mira,0.359,0.376,E_9_F_2,,0.954787234
+E_9_F,E,E9,Fillet,Mira,1,PET,"Don't look like ELA plastic, but unsure",Mira,FTIR,Cellulosic,,,Mira,0.439,0.221,E_9_F_1,,1.986425339
+E_9_F,E,E9,Fillet,Mira,2,PET,"Don't look like ELA plastic, but unsure",Mira,FTIR,Fibrose viscose dyed,,,Mira,0.359,0.376,E_9_F_2,,0.954787234
 E_9_G,E,E9,Gill,,NA,NA,,,NA,NA,,,,,,,,
 E_9_GIT,E,E9,GIT,,NA,NA,,,NA,NA,,,,,,,,
 E_9_L,E,E9,Liver,Mira,1,PS,,Mira,FTIR,Unknown,,,Mira,0.119,0.077,E_9_L_1,,1.545454545
 F_6_F,F,F6,Fillet,,NA,NA,,,NA,NA,,,,,,,,
 F_6_G,F,F6,Gill,,NA,NA,,,NA,NA,,,,,,,,
-F_6_GIT,F,F6,GIT,Garth,1,unknown,likely not an ELA plastic,Garth,Raman,Cellulosic,,,Mira,1.063,0.044,F_6_GIT_1,,24.15909091
+F_6_GIT,F,F6,GIT,Garth,1,PET,likely not an ELA plastic,Garth,Raman,Cellulosic,,,Mira,1.063,0.044,F_6_GIT_1,,24.15909091
 F_6_L,F,F6,Liver,,NA,NA,,,NA,NA,,,,,,,,
 F_7_F,F,F7,Fillet,Mira,1,PS,,Gloria,Raman,PP,,,Mira,0.139,0.067,F_7_F_1,,2.074626866
 F_7_F,F,F7,Fillet,Mira,2,PS,,Gloria,Raman,PP,,,Mira,0.283,0.146,F_7_F_2,,1.938356164
@@ -1318,27 +1318,27 @@ G_12_F,G,G12,Fillet,Mira,1,PS,,Mira,FTIR,PS,,,Mira,0.179,0.121,G_12_F_1,,1.47933
 G_12_F,G,G12,Fillet,Mira,2,PS,Unsure if ELA - Looked like film,Mira,FTIR,PP,,,Mira,0.23,0.118,G_12_F_2,,1.949152542
 G_12_G,G,G12,Gill,Mira,1,PS,,Mira,FTIR,PS,,,Mira,0.403,0.27,G_12_G_1,,1.492592593
 G_12_G,G,G12,Gill,Mira,2,PE,,Mira,FTIR,PE,,,Mira,0.48,0.264,G_12_G_2,,1.818181818
-G_12_G,G,G12,Gill,Mira,3,unknown,,Mira,FTIR,PET,,,Mira,0.143,0.094,G_12_G_3,,1.521276596
+G_12_G,G,G12,Gill,Mira,3,PET,,Mira,FTIR,PET,,,Mira,0.143,0.094,G_12_G_3,,1.521276596
 G_12_G,G,G12,Gill,Mira,4,PS,,Mira,FTIR,PS,,,Mira,0.695,0.244,G_12_G_4,,2.848360656
-G_12_G,G,G12,Gill,Mira,5,unknown,,Mira,FTIR,PS,,,Mira,0.176,0.131,G_12_G_5,,1.34351145
-G_12_G,G,G12,Gill,Mira,6,unknown,,Mira,FTIR,PS,,,Mira,0.211,0.181,G_12_G_6,,1.165745856
+G_12_G,G,G12,Gill,Mira,5,PET,,Mira,FTIR,PS,,,Mira,0.176,0.131,G_12_G_5,,1.34351145
+G_12_G,G,G12,Gill,Mira,6,PET,,Mira,FTIR,PS,,,Mira,0.211,0.181,G_12_G_6,,1.165745856
 G_12_G,G,G12,Gill,Mira,7,PS,,Mira,FTIR,PS,,,Mira,0.254,0.192,G_12_G_7,,1.322916667
-G_12_G,G,G12,Gill,Mira,8,unknown,,Mira,FTIR,PET,,,Mira,0.263,0.136,G_12_G_8,,1.933823529
+G_12_G,G,G12,Gill,Mira,8,PET,,Mira,FTIR,PET,,,Mira,0.263,0.136,G_12_G_8,,1.933823529
 G_12_G,G,G12,Gill,Mira,9,PE,,Mira,FTIR,PE,,,Mira,0.285,0.128,G_12_G_9,,2.2265625
 G_12_G,G,G12,Gill,Mira,10,PS,,Mira,FTIR,PS,,,Mira,0.169,0.14,G_12_G_10,,1.207142857
-G_12_G,G,G12,Gill,Mira,11,unknown,,Mira,FTIR,PET,,,Mira,0.31,0.233,G_12_G_11,,1.330472103
-G_12_G,G,G12,Gill,Mira,12,unknown,,Mira,FTIR,PET,,,Mira,0.677,0.304,G_12_G_12,,2.226973684
+G_12_G,G,G12,Gill,Mira,11,PET,,Mira,FTIR,PET,,,Mira,0.31,0.233,G_12_G_11,,1.330472103
+G_12_G,G,G12,Gill,Mira,12,PET,,Mira,FTIR,PET,,,Mira,0.677,0.304,G_12_G_12,,2.226973684
 G_12_G,G,G12,Gill,Mira,13,PS,,Mira,FTIR,PS,,,Mira,0.438,0.252,G_12_G_13,,1.738095238
 G_12_G,G,G12,Gill,Mira,14,PS,,Mira,FTIR,PS,,,Mira,0.441,0.241,G_12_G_14,,1.829875519
-G_12_G,G,G12,Gill,Mira,15,unknown,,Mira,FTIR,PET,Polyester,,Mira,0.302,0.224,G_12_G_15,,1.348214286
-G_12_G,G,G12,Gill,Mira,16,unknown,,Mira,FTIR,PET,,,Mira,0.301,0.113,G_12_G_16,,2.663716814
+G_12_G,G,G12,Gill,Mira,15,PET,,Mira,FTIR,PET,Polyester,,Mira,0.302,0.224,G_12_G_15,,1.348214286
+G_12_G,G,G12,Gill,Mira,16,PET,,Mira,FTIR,PET,,,Mira,0.301,0.113,G_12_G_16,,2.663716814
 G_12_G,G,G12,Gill,Mira,17,PE,,Mira,FTIR,PE,,,Mira,0.267,0.135,G_12_G_17,,1.977777778
 G_12_G,G,G12,Gill,Mira,18,PS,,Mira,FTIR,PS,,,Mira,0.175,0.092,G_12_G_18,,1.902173913
 G_12_G,G,G12,Gill,Mira,19,PE,,Mira,FTIR,PE,,,Mira,0.262,0.147,G_12_G_19,,1.782312925
 G_12_G,G,G12,Gill,Mira,20,PS,,Mira,FTIR,PS,,,Mira,0.167,0.153,G_12_G_20,,1.091503268
 G_12_G,G,G12,Gill,Mira,21,PS,,Mira,FTIR,PS,,,Mira,0.273,0.169,G_12_G_21,,1.615384615
-G_12_G,G,G12,Gill,Mira,22,unknown,,Mira,FTIR,PET,,,Mira,0.181,0.104,G_12_G_22,,1.740384615
-G_12_G,G,G12,Gill,Mira,23,unknown,,Mira,FTIR,PET,,,Mira,0.222,0.111,G_12_G_23,,2
+G_12_G,G,G12,Gill,Mira,22,PET,,Mira,FTIR,PET,,,Mira,0.181,0.104,G_12_G_22,,1.740384615
+G_12_G,G,G12,Gill,Mira,23,PET,,Mira,FTIR,PET,,,Mira,0.222,0.111,G_12_G_23,,2
 G_12_G,G,G12,Gill,Mira,24,PE,,Mira,FTIR,PE,,,Mira,0.347,0.279,G_12_G_24,,1.243727599
 G_12_G,G,G12,Gill,Mira,25,PS,,Gloria,Raman,PS,too small - squished,,Mira,0.122,0.091,G_12_G_25,,1.340659341
 G_12_G,G,G12,Gill,Mira,26,PE,,Mira,FTIR,PE,,,Mira,0.538,0.199,G_12_G_26,,2.703517588
@@ -1346,14 +1346,14 @@ G_12_G,G,G12,Gill,Mira,27,PE,,Mira,FTIR,PE,,,Mira,0.741,0.087,G_12_G_27,,8.51724
 G_12_G,G,G12,Gill,Mira,28,PE,,Mira,FTIR,PE,,,Mira,0.111,0.088,G_12_G_28,,1.261363636
 G_12_G,G,G12,Gill,Mira,29,PE,,Mira,FTIR,PE,,,Mira,0.759,0.187,G_12_G_29,,4.058823529
 G_12_G,G,G12,Gill,Mira,30,PE,,Mira,FTIR,PE,,,Mira,0.308,0.173,G_12_G_30,,1.780346821
-G_12_G,G,G12,Gill,Mira,31,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,32,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,33,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,34,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,35,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,36,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,37,unknown,,,NA,NA,,,,,,,,
-G_12_G,G,G12,Gill,Mira,38,unknown,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,31,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,32,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,33,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,34,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,35,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,36,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,37,PET,,,NA,NA,,,,,,,,
+G_12_G,G,G12,Gill,Mira,38,PET,,,NA,NA,,,,,,,,
 G_12_G,G,G12,Gill,Mira,39,PS,,,NA,NA,,,,,,,,
 G_12_G,G,G12,Gill,Mira,40,PS,,,NA,NA,,,,,,,,
 G_12_G,G,G12,Gill,Mira,41,PS,,,NA,NA,,,,,,,,
@@ -1368,29 +1368,29 @@ G_12_GIT,G,G12,GIT,Mira,7,PS,,Gloria,Raman,PS,,,Mira,0.122,0.073,G_12_GIT_7,,1.6
 G_12_GIT,G,G12,GIT,Mira,8,PS,,Gloria,Raman,PS,,,Mira,0.172,0.097,G_12_GIT_8,,1.773195876
 G_12_L,G,G12,Liver,Mira,1,PS,,Mira,FTIR,PS,,,Mira,0.298,0.19,G_12_L_1,,1.568421053
 G_13_F,G,G13,Fillet,Mira,1,PE,,Mira,FTIR,PE,,,Mira,0.289,0.185,G_13_F_1,,1.562162162
-G_13_F,G,G13,Fillet,Mira,2,unknown,,Mira,FTIR,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.299,0.141,G_13_F_2,,2.120567376
+G_13_F,G,G13,Fillet,Mira,2,PET,,Mira,FTIR,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.299,0.141,G_13_F_2,,2.120567376
 G_13_F,G,G13,Fillet,Mira,3,PE,,Mira,FTIR,PE,,,Mira,0.325,0.203,G_13_F_3,,1.600985222
 G_13_F,G,G13,Fillet,Mira,4,PS,,Mira,FTIR,PS,,,Mira,0.222,0.185,G_13_F_4,,1.2
 G_13_F,G,G13,Fillet,Mira,5,PS,,Mira,FTIR,PS,,,Mira,0.214,0.185,G_13_F_5,,1.156756757
-G_13_G,G,G13,Gill,Mira,1,unknown,,Mira,FTIR,PET,,,Mira,0.396,0.345,G_13_G_1,,1.147826087
-G_13_G,G,G13,Gill,Mira,2,unknown,,Mira,FTIR,PET,,,Mira,0.21,0.105,G_13_G_2,,2
-G_13_G,G,G13,Gill,Mira,3,unknown,,Mira,FTIR,PET,,,Mira,0.152,0.166,G_13_G_3,,0.915662651
+G_13_G,G,G13,Gill,Mira,1,PET,,Mira,FTIR,PET,,,Mira,0.396,0.345,G_13_G_1,,1.147826087
+G_13_G,G,G13,Gill,Mira,2,PET,,Mira,FTIR,PET,,,Mira,0.21,0.105,G_13_G_2,,2
+G_13_G,G,G13,Gill,Mira,3,PET,,Mira,FTIR,PET,,,Mira,0.152,0.166,G_13_G_3,,0.915662651
 G_13_G,G,G13,Gill,Mira,4,PS,,Mira,FTIR,Unknown,,,Mira,0.175,0.141,G_13_G_4,,1.241134752
-G_13_G,G,G13,Gill,Mira,5,unknown,,Mira,FTIR,PET,,,Mira,0.53,0.264,G_13_G_5,,2.007575758
-G_13_G,G,G13,Gill,Mira,6,unknown,,Mira,FTIR,PET,,,Mira,0.422,0.256,G_13_G_6,,1.6484375
+G_13_G,G,G13,Gill,Mira,5,PET,,Mira,FTIR,PET,,,Mira,0.53,0.264,G_13_G_5,,2.007575758
+G_13_G,G,G13,Gill,Mira,6,PET,,Mira,FTIR,PET,,,Mira,0.422,0.256,G_13_G_6,,1.6484375
 G_13_G,G,G13,Gill,Mira,7,PS,,Mira,FTIR,PS,,,Mira,0.414,0.399,G_13_G_7,,1.037593985
 G_13_G,G,G13,Gill,Mira,8,PS,,Mira,FTIR,PS,,,Mira,0.348,0.158,G_13_G_8,,2.202531646
-G_13_G,G,G13,Gill,Mira,9,unknown,,Mira,FTIR,PET,,,Mira,0.251,0.123,G_13_G_9,,2.040650407
-G_13_G,G,G13,Gill,Mira,10,unknown,,Mira,FTIR,PET,,,Mira,0.381,0.242,G_13_G_10,,1.574380165
+G_13_G,G,G13,Gill,Mira,9,PET,,Mira,FTIR,PET,,,Mira,0.251,0.123,G_13_G_9,,2.040650407
+G_13_G,G,G13,Gill,Mira,10,PET,,Mira,FTIR,PET,,,Mira,0.381,0.242,G_13_G_10,,1.574380165
 G_13_G,G,G13,Gill,Mira,11,PS,,Mira,FTIR,PS,,,Mira,0.306,0.211,G_13_G_11,,1.450236967
-G_13_G,G,G13,Gill,Mira,12,unknown,,Mira,FTIR,PET,,,Mira,1.055,0.368,G_13_G_12,,2.866847826
+G_13_G,G,G13,Gill,Mira,12,PET,,Mira,FTIR,PET,,,Mira,1.055,0.368,G_13_G_12,,2.866847826
 G_13_G,G,G13,Gill,Mira,13,PS,,Mira,FTIR,PS,,,Mira,0.415,0.228,G_13_G_13,,1.820175439
-G_13_G,G,G13,Gill,Mira,14,unknown,,Mira,FTIR,PET,,,Mira,0.64,0.379,G_13_G_14,,1.688654354
+G_13_G,G,G13,Gill,Mira,14,PET,,Mira,FTIR,PET,,,Mira,0.64,0.379,G_13_G_14,,1.688654354
 G_13_G,G,G13,Gill,Mira,15,PE,,Mira,FTIR,PE,,,Mira,0.449,0.227,G_13_G_15,,1.977973568
 G_13_G,G,G13,Gill,Mira,16,PE,,Mira,FTIR,PE,,,Mira,0.461,0.252,G_13_G_16,,1.829365079
 G_13_G,G,G13,Gill,Mira,17,PE,,Mira,FTIR,PE,,,Mira,0.192,0.113,G_13_G_17,,1.699115044
 G_13_G,G,G13,Gill,Mira,18,PS,,Mira,FTIR,PS,,,Mira,0.281,0.157,G_13_G_18,,1.789808917
-G_13_G,G,G13,Gill,Mira,19,unknown,,Mira,FTIR,PET,,,Mira,0.361,0.223,G_13_G_19,,1.618834081
+G_13_G,G,G13,Gill,Mira,19,PET,,Mira,FTIR,PET,,,Mira,0.361,0.223,G_13_G_19,,1.618834081
 G_13_G,G,G13,Gill,Mira,20,PS,,Mira,FTIR,PS,,,Mira,0.374,0.278,G_13_G_20,,1.345323741
 G_13_G,G,G13,Gill,Mira,21,PS,,Gloria,Raman,PS,,,Mira,0.491,0.437,G_13_G_21,,1.123569794
 G_13_G,G,G13,Gill,Mira,22,PS,,Mira,FTIR,PS,,,Mira,0.198,0.168,G_13_G_22,,1.178571429
@@ -1418,54 +1418,54 @@ G_13_G,G,G13,Gill,Mira,43,PE,,,NA,NA,,,,,,,,
 G_13_G,G,G13,Gill,Mira,44,PE,,,NA,NA,,,,,,,,
 G_13_G,G,G13,Gill,Mira,45,PE,,,NA,NA,,,,,,,,
 G_13_G,G,G13,Gill,Mira,46,PE,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,47,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,48,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,49,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,50,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,51,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,52,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,53,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,54,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,55,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,56,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,57,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,58,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,59,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,60,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,61,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,62,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,63,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,64,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,65,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,66,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,67,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,68,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,69,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,70,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,71,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,72,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,73,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,74,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,75,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,76,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,77,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,78,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,79,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,80,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,81,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,82,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,83,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,84,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,85,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,86,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,87,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,88,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,89,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,90,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,91,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,92,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,93,unknown,,,NA,NA,,,,,,,,
-G_13_G,G,G13,Gill,Mira,94,unknown,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,47,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,48,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,49,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,50,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,51,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,52,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,53,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,54,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,55,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,56,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,57,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,58,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,59,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,60,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,61,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,62,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,63,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,64,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,65,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,66,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,67,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,68,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,69,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,70,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,71,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,72,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,73,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,74,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,75,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,76,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,77,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,78,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,79,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,80,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,81,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,82,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,83,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,84,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,85,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,86,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,87,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,88,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,89,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,90,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,91,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,92,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,93,PET,,,NA,NA,,,,,,,,
+G_13_G,G,G13,Gill,Mira,94,PET,,,NA,NA,,,,,,,,
 G_13_GIT,G,G13,GIT,Mira,1,PE,,Gloria,Raman,PE,,,Mira,0.47,0.393,G_13_GIT_1,,1.195928753
 G_13_GIT,G,G13,GIT,Mira,2,PS,,Gloria,Raman,PS,,,Mira,0.125,0.107,G_13_GIT_2,,1.168224299
 G_13_GIT,G,G13,GIT,Mira,3,PE,,Gloria,Raman,PE,,,Mira,0.231,0.522,G_13_GIT_3,,0.442528736
@@ -1498,7 +1498,7 @@ G_9_L,G,G9,Liver,Mira,1,PS,,Gloria,Raman,PS,squished by FTIR,,Mira,0.116,0.081,G
 G_9_L,G,G9,Liver,Mira,2,PE,,Mira,FTIR,Polyethyl acrylate,,,Mira,0.134,0.132,G_9_L_2,,1.015151515
 H_1_G,H,H1,Gill,,NA,NA,,,NA,NA,,,,,,,,
 H_1_GIT,H,H1,GIT,,NA,NA,,,NA,NA,,,,,,,,
-H_1_L,H,H1,Liver,Mira,1,unknown,Looked squished,Gloria,Raman,PP,"low lit quality, not ELA particle",,Mira,0.271,0.177,H_1_L_1,,1.531073446
+H_1_L,H,H1,Liver,Mira,1,PET,Looked squished,Gloria,Raman,PP,"low lit quality, not ELA particle",,Mira,0.271,0.177,H_1_L_1,,1.531073446
 H_11_F,H,H11,Fillet,Mira,1,PS,,Mira,FTIR,PE,,,Mira,0.813,0.098,H_11_F_1,,8.295918367
 H_11_G,H,H11,Gill,,NA,NA,,,NA,NA,,,,,,,,
 H_11_GIT,H,H11,GIT,Garth,1,PE,,Garth,Raman,PE,,,Mira,0.239,0.12,H_11_GIT_1,,1.991666667
@@ -1529,7 +1529,7 @@ H_17_GIT,H,H17,GIT,Mira,1,PE,Unsure if plastic,Gloria,Raman,PE,,,Mira,0.374,0.22
 H_17_GIT,H,H17,GIT,Mira,2,PE,,Gloria,Raman,PE,,,Mira,0.411,0.203,H_17_GIT_2,,2.024630542
 H_17_GIT,H,H17,GIT,Mira,3,PE,,Gloria,Raman,PE,,,Mira,0.3,0.247,H_17_GIT_3,,1.214574899
 H_17_GIT,H,H17,GIT,Mira,4,PE,,Gloria,Raman,PE,,,Mira,0.4,0.139,H_17_GIT_4,,2.877697842
-H_17_GIT,H,H17,GIT,Mira,5,unknown,Looks almost white,Gloria,Raman,PET,,,Mira,0.279,0.233,H_17_GIT_5,,1.197424893
+H_17_GIT,H,H17,GIT,Mira,5,PET,Looks almost white,Gloria,Raman,PET,,,Mira,0.279,0.233,H_17_GIT_5,,1.197424893
 H_17_GIT,H,H17,GIT,Mira,6,PE,,Gloria,Raman,PE,,,Mira,0.151,0.107,H_17_GIT_6,,1.411214953
 H_17_GIT,H,H17,GIT,Mira,7,PE,,Gloria,Raman,PE,,,Mira,0.215,0.14,H_17_GIT_7,,1.535714286
 H_17_L,H,H17,Liver,,NA,NA,,,NA,NA,,,,,,,,
@@ -1542,15 +1542,15 @@ H_3_G,H,H3,Gill,,NA,NA,,,NA,NA,,,,,,,,
 H_3_GIT,H,H3,GIT,Garth,1,PE,,Garth,Raman,PE,,,Mira,0.447,0.347,H_3_GIT_1,,1.288184438
 H_3_GIT,H,H3,GIT,Garth,2,PE,,Garth,Raman,PE,,,Mira,0.667,0.222,H_3_GIT_2,,3.004504505
 H_3_L,H,H3,Liver,,NA,NA,,,NA,NA,,,,,,,,
-I_10_F,I,I10,Fillet,Mira,1,unknown,Very small,Gloria,Raman,PP,,,Mira,0.165,0.083,I_10_F_1,,1.987951807
+I_10_F,I,I10,Fillet,Mira,1,PET,Very small,Gloria,Raman,PP,,,Mira,0.165,0.083,I_10_F_1,,1.987951807
 I_10_G,I,I10,Gill,Mira,1,PE,,Mira,FTIR,PE,,,Mira,0.248,0.272,I_10_G_1,,0.911764706
 I_10_G,I,I10,Gill,Mira,2,PE,Look like fiber,Gloria,Raman,PE,,,Mira,0.525,0.073,I_10_G_2,,7.191780822
 I_10_G,I,I10,Gill,Mira,3,PE,Look like fiber,Gloria,Raman,PE,,,Mira,0.457,0.021,I_10_G_3,,21.76190476
 I_10_G,I,I10,Gill,Mira,4,PE,Look like fiber,Gloria,Raman,PE,,,Mira,0.644,0.049,I_10_G_4,,13.14285714
-I_10_GIT,I,I10,GIT,Mira,1,unknown,,Gloria,Raman,PET,,,Mira,0.496,0.298,I_10_GIT_1,,1.66442953
+I_10_GIT,I,I10,GIT,Mira,1,PET,,Gloria,Raman,PET,,,Mira,0.496,0.298,I_10_GIT_1,,1.66442953
 I_10_GIT,I,I10,GIT,Mira,2,PE,,Gloria,Raman,PE,,,Mira,0.462,0.214,I_10_GIT_2,,2.158878505
 I_10_GIT,I,I10,GIT,Mira,3,PE,,Gloria,Raman,PE,,,Mira,0.766,0.152,I_10_GIT_3,,5.039473684
-I_10_GIT,I,I10,GIT,Mira,4,unknown,,Gloria,Raman,PET,,,Mira,0.284,0.168,I_10_GIT_4,,1.69047619
+I_10_GIT,I,I10,GIT,Mira,4,PET,,Gloria,Raman,PET,,,Mira,0.284,0.168,I_10_GIT_4,,1.69047619
 I_10_GIT,I,I10,GIT,Mira,5,PE,,Gloria,Raman,PE,,,Mira,0.503,0.34,I_10_GIT_5,,1.479411765
 I_10_GIT,I,I10,GIT,Mira,6,PS,,Gloria,Raman,PS,,,Mira,0.251,0.131,I_10_GIT_6,,1.916030534
 I_10_GIT,I,I10,GIT,Mira,7,PE,,Gloria,Raman,PE,,,Mira,0.213,0.121,I_10_GIT_7,,1.760330579
@@ -1571,43 +1571,43 @@ I_11_GIT,I,I11,GIT,Mira,8,PE,,Gloria,Raman,PE,,,mira,0.217,0.121,I_11_GIT_8,,1.7
 I_11_GIT,I,I11,GIT,Mira,9,PE,,Gloria,Raman,PE,,,Mira,0.615,0.207,I_11_GIT_9,,2.971014493
 I_11_GIT,I,I11,GIT,Mira,10,PE,,Gloria,Raman,PE,,,Mira,0.676,0.401,I_11_GIT_10,,1.685785536
 I_11_L,I,I11,Liver,Mira,1,PE,Looked spiraled - like a cut during production,Mira,FTIR,PE,,,Mira,2.394,0.156,I_11_L_1,,15.34615385
-I_11_L,I,I11,Liver,Mira,2,unknown,Looked like fiber,Mira,FTIR,Cellulose,,,Mira,0.782,0.022,I_11_L_2,,35.54545455
-I_2_F,I,I2,Fillet,Mira,1,unknown,,Mira,FTIR,PET,,,Mira,0.759,0.326,I_2_F_1,,2.328220859
+I_11_L,I,I11,Liver,Mira,2,PET,Looked like fiber,Mira,FTIR,Cellulose,,,Mira,0.782,0.022,I_11_L_2,,35.54545455
+I_2_F,I,I2,Fillet,Mira,1,PET,,Mira,FTIR,PET,,,Mira,0.759,0.326,I_2_F_1,,2.328220859
 I_2_G,I,I2,Gill,Mira,1,PS,,Mira,FTIR,PS,,,Mira,0.342,0.225,I_2_G_1,,1.52
 I_2_G,I,I2,Gill,Mira,2,PS,,Mira,FTIR,PS,,,Mira,0.556,0.364,I_2_G_2,,1.527472527
 I_2_G,I,I2,Gill,Mira,3,PS,,Mira,FTIR,PS,,,Mira,0.386,0.155,I_2_G_3,,2.490322581
-I_2_G,I,I2,Gill,Mira,4,unknown,,Mira,FTIR,PET,,,Mira,0.361,0.331,I_2_G_4,,1.090634441
-I_2_G,I,I2,Gill,Mira,5,unknown,,Mira,FTIR,PS,,,Mira,0.28,0.112,I_2_G_5,,2.5
-I_2_G,I,I2,Gill,Mira,6,unknown,,Mira,FTIR,PET,,,Mira,0.709,0.349,I_2_G_6,,2.031518625
+I_2_G,I,I2,Gill,Mira,4,PET,,Mira,FTIR,PET,,,Mira,0.361,0.331,I_2_G_4,,1.090634441
+I_2_G,I,I2,Gill,Mira,5,PET,,Mira,FTIR,PS,,,Mira,0.28,0.112,I_2_G_5,,2.5
+I_2_G,I,I2,Gill,Mira,6,PET,,Mira,FTIR,PET,,,Mira,0.709,0.349,I_2_G_6,,2.031518625
 I_2_G,I,I2,Gill,Mira,7,PS,,Mira,FTIR,uknown,,,Mira,1.104,0.296,I_2_G_7,,3.72972973
 I_2_G,I,I2,Gill,Mira,8,PS,,Mira,FTIR,PS,,,Mira,0.598,0.383,I_2_G_8,,1.561357702
-I_2_G,I,I2,Gill,Mira,9,unknown,,Mira,FTIR,PET,,,Mira,0.305,0.262,I_2_G_9,,1.164122137
+I_2_G,I,I2,Gill,Mira,9,PET,,Mira,FTIR,PET,,,Mira,0.305,0.262,I_2_G_9,,1.164122137
 I_2_G,I,I2,Gill,Mira,10,PS,,Mira,FTIR,PS,,,Mira,0.41,0.404,I_2_G_10,,1.014851485
 I_2_G,I,I2,Gill,Mira,11,PE,,Mira,FTIR,PE,,,Mira,0.353,0.113,I_2_G_11,,3.123893805
-I_2_G,I,I2,Gill,Mira,12,unknown,,Mira,FTIR,PET,,,Mira,0.304,0.2,I_2_G_12,,1.52
+I_2_G,I,I2,Gill,Mira,12,PET,,Mira,FTIR,PET,,,Mira,0.304,0.2,I_2_G_12,,1.52
 I_2_G,I,I2,Gill,Mira,13,PS,,Mira,FTIR,PS,,,Mira,0.518,0.324,I_2_G_13,,1.598765432
 I_2_G,I,I2,Gill,Mira,14,PE,,Mira,FTIR,PE,,,Mira,0.392,0.254,I_2_G_14,,1.543307087
 I_2_G,I,I2,Gill,Mira,15,PS,,Mira,FTIR,PS,,,Mira,0.504,0.388,I_2_G_15,,1.298969072
 I_2_G,I,I2,Gill,Mira,16,unknown,,Mira,FTIR,PS,,,Mira,0.162,0.125,I_2_G_16,,1.296
 I_2_G,I,I2,Gill,Mira,17,PS,,Mira,FTIR,PS,,,Mira,0.347,0.221,I_2_G_17,,1.570135747
-I_2_G,I,I2,Gill,Mira,18,unknown,,Mira,FTIR,PET,,,Mira,0.684,0.24,I_2_G_18,,2.85
+I_2_G,I,I2,Gill,Mira,18,PET,,Mira,FTIR,PET,,,Mira,0.684,0.24,I_2_G_18,,2.85
 I_2_G,I,I2,Gill,Mira,19,PS,,Mira,FTIR,PS,,,Mira,0.37,0.329,I_2_G_19,,1.124620061
 I_2_G,I,I2,Gill,Mira,20,PS,,Mira,FTIR,PS,,,Mira,0.397,0.266,I_2_G_20,,1.492481203
 I_2_G,I,I2,Gill,Mira,21,PS,,Mira,FTIR,PS,,,Mira,0.476,0.3,I_2_G_21,,1.586666667
 I_2_G,I,I2,Gill,Mira,22,PS,,Mira,FTIR,PS,,,Mira,0.296,0.264,I_2_G_22,,1.121212121
 I_2_G,I,I2,Gill,Mira,23,PS,,Mira,FTIR,PS,,,Mira,0.325,0.222,I_2_G_23,,1.463963964
-I_2_G,I,I2,Gill,Mira,24,unknown,,Mira,FTIR,PET,,,Mira,0.35,0.249,I_2_G_24,Particle was hit with the sharpie so it looks black,1.40562249
+I_2_G,I,I2,Gill,Mira,24,PET,,Mira,FTIR,PET,,,Mira,0.35,0.249,I_2_G_24,Particle was hit with the sharpie so it looks black,1.40562249
 I_2_G,I,I2,Gill,Mira,25,PE,,Mira,FTIR,PE,,,Mira,0.554,0.299,I_2_G_25,,1.852842809
 I_2_G,I,I2,Gill,Mira,26,PE,,Mira,FTIR,PE,,,Mira,0.284,0.093,I_2_G_26,,3.053763441
-I_2_G,I,I2,Gill,Mira,27,unknown,,Mira,FTIR,PS,,,Mira,0.205,0.174,I_2_G_27,,1.17816092
-I_2_G,I,I2,Gill,Mira,28,unknown,,Mira,FTIR,PS,,,Mira,0.175,0.125,I_2_G_28,,1.4
-I_2_G,I,I2,Gill,Mira,29,unknown,,Mira,FTIR,PS,,,Mira,0.173,0.107,I_2_G_29,,1.61682243
+I_2_G,I,I2,Gill,Mira,27,PET,,Mira,FTIR,PS,,,Mira,0.205,0.174,I_2_G_27,,1.17816092
+I_2_G,I,I2,Gill,Mira,28,PET,,Mira,FTIR,PS,,,Mira,0.175,0.125,I_2_G_28,,1.4
+I_2_G,I,I2,Gill,Mira,29,PET,,Mira,FTIR,PS,,,Mira,0.173,0.107,I_2_G_29,,1.61682243
 I_2_G,I,I2,Gill,Mira,30,PE,,Mira,FTIR,PE,,,Mira,0.166,0.135,I_2_G_30,,1.22962963
 I_2_G,I,I2,Gill,Mira,31,PS,,Mira,FTIR,PS,,,Mira,0.359,0.269,I_2_G_31,,1.334572491
 I_2_G,I,I2,Gill,Mira,32,PS,,Mira,FTIR,PS,,,Mira,0.217,0.213,I_2_G_32,,1.018779343
-I_2_G,I,I2,Gill,Mira,33,unknown,,Mira,FTIR,PET,,,Mira,0.313,0.234,I_2_G_33,,1.337606838
+I_2_G,I,I2,Gill,Mira,33,PET,,Mira,FTIR,PET,,,Mira,0.313,0.234,I_2_G_33,,1.337606838
 I_2_G,I,I2,Gill,Mira,34,PS,,Mira,FTIR,PS,,,Mira,0.369,0.185,I_2_G_34,,1.994594595
-I_2_G,I,I2,Gill,Mira,35,unknown,,Mira,FTIR,PET,,,Mira,0.258,0.255,I_2_G_35,,1.011764706
+I_2_G,I,I2,Gill,Mira,35,PET,,Mira,FTIR,PET,,,Mira,0.258,0.255,I_2_G_35,,1.011764706
 I_2_G,I,I2,Gill,Mira,36,unknown,,Mira,FTIR,PS,,,Mira,0.168,0.169,I_2_G_36,,0.99408284
 I_2_G,I,I2,Gill,Mira,37,unknown,,Mira,FTIR,PS,,,Mira,0.175,0.146,I_2_G_37,,1.198630137
 I_2_G,I,I2,Gill,Mira,38,PS,,Mira,FTIR,PS,,,Mira,0.142,0.133,I_2_G_38,,1.067669173
@@ -1616,17 +1616,17 @@ I_2_G,I,I2,Gill,Mira,40,unknown,,Mira,FTIR,PET,,,Mira,0.16,0.075,I_2_G_40,,2.133
 I_2_G,I,I2,Gill,Mira,41,unknown,,Mira,FTIR,PS,,,Mira,0.233,0.124,I_2_G_41,,1.879032258
 I_2_G,I,I2,Gill,Mira,42,unknown,,Mira,FTIR,PET,,,Mira,0.197,0.127,I_2_G_42,,1.551181102
 I_2_G,I,I2,Gill,Mira,43,unknown,,Mira,FTIR,PS,,,Mira,0.155,0.179,I_2_G_43,,0.865921788
-I_2_G,I,I2,Gill,Mira,44,unknown,,Mira,FTIR,PS,,,Mira,0.224,0.092,I_2_G_44,,2.434782609
+I_2_G,I,I2,Gill,Mira,44,PET,,Mira,FTIR,PS,,,Mira,0.224,0.092,I_2_G_44,,2.434782609
 I_2_G,I,I2,Gill,Mira,45,unknown,,Mira,FTIR,PET,,,Mira,0.211,0.168,I_2_G_45,,1.255952381
 I_2_G,I,I2,Gill,Mira,46,unknown,,Mira,FTIR,PET,,,Mira,0.181,0.112,I_2_G_46,,1.616071429
-I_2_G,I,I2,Gill,Mira,47,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,48,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,49,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,50,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,51,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,52,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,53,unknown,,,NA,NA,,,,,,,,
-I_2_G,I,I2,Gill,Mira,54,unknown,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,47,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,48,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,49,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,50,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,51,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,52,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,53,PET,,,NA,NA,,,,,,,,
+I_2_G,I,I2,Gill,Mira,54,PET,,,NA,NA,,,,,,,,
 I_2_G,I,I2,Gill,Mira,55,PS,,,NA,NA,,,,,,,,
 I_2_G,I,I2,Gill,Mira,56,PS,,,NA,NA,,,,,,,,
 I_2_G,I,I2,Gill,Mira,57,PS,,,NA,NA,,,,,,,,
@@ -1680,7 +1680,7 @@ I_3_G,I,I3,Gill,Mira,7,PS,,Mira,FTIR,PS,,,Mira,0.277,0.119,I_3_G_7,,2.327731092
 I_3_G,I,I3,Gill,Mira,8,PS,,Mira,FTIR,PS,,,Mira,0.228,0.148,I_3_G_8,,1.540540541
 I_3_GIT,I,I3,GIT,Garth,1,PE,,Garth,Raman,PE,,,Mira,0.438,0.134,I_3_GIT_1,,3.268656716
 I_3_GIT,I,I3,GIT,Garth,2,PE,,Garth,Raman,PE,,,Mira,0.551,0.41,I_3_GIT_2,,1.343902439
-I_3_GIT,I,I3,GIT,Garth,3,unknown,might not be PET,Garth,Raman,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.2,0.177,I_3_GIT_3,,1.129943503
+I_3_GIT,I,I3,GIT,Garth,3,PET,might not be PET,Garth,Raman,PE other,"Clearly blue in the picture, not ELA plastic",yes,Mira,0.2,0.177,I_3_GIT_3,,1.129943503
 I_3_GIT,I,I3,GIT,Garth,4,PE,,Garth,Raman,PE,,,Mira,0.441,0.325,I_3_GIT_4,,1.356923077
 I_3_L,I,I3,Liver,Mira,1,unknown,,Gloria,Raman,Quartz,,,Mira,0.111,0.074,I_3_L_1,,1.5
 I_3_L,I,I3,Liver,Mira,2,PE,,Mira,FTIR,PE,,,Mira,0.223,0.138,I_3_L_2,,1.615942029
