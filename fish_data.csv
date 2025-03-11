@@ -1496,6 +1496,7 @@ G_9_G,G,G9,Gill,Mira,1,PS,,Mira,FTIR,PS,,,Mira,0.328,0.287,G_9_G_1,,1.142857143
 G_9_GIT,G,G9,GIT,Garth,1,PS,,Garth,Raman,PS,,,Mira,0.555,0.419,G_9_GIT_1,,1.324582339
 G_9_L,G,G9,Liver,Mira,1,PS,,Gloria,Raman,PS,squished by FTIR,,Mira,0.116,0.081,G_9_L_1,,1.432098765
 G_9_L,G,G9,Liver,Mira,2,PE,,Mira,FTIR,Polyethyl acrylate,,,Mira,0.134,0.132,G_9_L_2,,1.015151515
+H_1_F,H,H1,Fillet,,NA,NA,,,NA,NA,,,,,,,,
 H_1_G,H,H1,Gill,,NA,NA,,,NA,NA,,,,,,,,
 H_1_GIT,H,H1,GIT,,NA,NA,,,NA,NA,,,,,,,,
 H_1_L,H,H1,Liver,Mira,1,PET,Looked squished,Gloria,Raman,PP,"low lit quality, not ELA particle",,Mira,0.271,0.177,H_1_L_1,,1.531073446
