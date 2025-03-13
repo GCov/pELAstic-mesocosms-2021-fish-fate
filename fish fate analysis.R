@@ -429,8 +429,83 @@ ggplot(fish_totals,
                        name = "") +
   theme_bw()
 
+#### Blank and Recovery Correction ####
+
+##### Explore the blanks data #####
+
+blanks
+
+# 12 blanks; 1 PE particles in 1 blank sample
+
+# Summarize the blanks data
+
+blanks2 <-
+  blanks %>% 
+  mutate(particle = ifelse(is.na(particle_number), 
+                           0,
+                           1),
+         polymer = ID)
+
+blanks_new <-
+  expand.grid(sample_ID = unique(blanks$sample_ID),
+              polymer = c("PE", "PS", "PET"))
+
+blanks_summary <- 
+  blanks_new %>% 
+  left_join(blanks2,
+             by = c("sample_ID",
+                    "polymer")) %>% 
+  mutate(count = replace_na(particle, 0))
+
+# Calculate means
+
+blank_means <-
+  blanks_summary %>% 
+  group_by(polymer) %>% 
+  summarize(mean = mean(count),
+            sd = sd(count))
+
+blank_means
+
+##### Explore the spike and recovery data #####
+
+# Note that I modified the raw data a bit to get it into a format I liked
+# This included deleting on PS particle that was beyond the 10 particles put in
+# Note this in the discussion though - recovery was 11/10 for SR3 PS
+
+head(SaR)
+
+# Summarize by sample/polymer
+
+SaR_summary <-
+  SaR %>% 
+  group_by(sample_ID,
+           polymer) %>% 
+  summarize(recovery = length(recovery[recovery == "yes"]),
+            .groups = "drop")
+
+# Plot this
+
+ggplot(SaR_summary, 
+       aes(x = sample_ID,
+           y = recovery,
+           fill = polymer)) +
+  geom_col() +
+  facet_wrap(~ polymer) +
+  scale_fill_manual(values = c("blue", "yellow", "pink")) +
+  theme_bw()
+
+# Calculate means
+
+SaR_means <-
+  SaR_summary %>% 
+  group_by(polymer) %>% 
+  summarize(mean = mean(recovery / 10),
+            sd = sd(recovery / 10))
+
 #### Modeling ####
 
 # See how organ concentration relate to nominal exposure concentrations
+
 
 
