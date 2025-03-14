@@ -462,8 +462,8 @@ blanks_summary <-
 blank_means <-
   blanks_summary %>% 
   group_by(polymer) %>% 
-  summarize(mean = mean(count),
-            sd = sd(count))
+  summarize(mean_blanks = mean(count),
+            sd_blanks = sd(count))
 
 blank_means
 
@@ -500,12 +500,153 @@ ggplot(SaR_summary,
 SaR_means <-
   SaR_summary %>% 
   group_by(polymer) %>% 
-  summarize(mean = mean(recovery / 10),
-            sd = sd(recovery / 10))
+  summarize(mean_prob_recovery = mean(recovery / 10),
+            sd_prob_recovery = sd(recovery / 10))
 
 #### Modeling ####
 
 # See how organ concentration relate to nominal exposure concentrations
 
+# I'm going to try this 3 ways:
+# 1) GLM with no correction
+# 2) GLM with recovery addition and blank subtraction
+# 3) GLM fitted with stan incorporating recovery and contamination
 
+# I need to generate a new column in the data for weight of the specific organ
+# for each row
 
+fish_full_summary$organ_weight <- 0
+
+for(i in 1:nrow(fish_full_summary)) {
+  fish_full_summary$organ_weight[i] <-
+    ifelse(fish_full_summary$organ[i] == "Fillet",
+           fish_full_summary$fillet_weight[i],
+           ifelse(fish_full_summary$organ[i] == "GIT",
+                  fish_full_summary$GIT_weight[i],
+                  fish_full_summary$liver_weight[i]))
+}
+
+fish_full_summary <-
+  fish_full_summary %>% 
+  mutate(log_organ_weight = log(organ_weight))
+
+##### First method: GLM #####
+
+GLM1 <- glmmTMB(count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
+                  (1 | corral / fish_ID),  # Need to figure out if this is OK
+                family = poisson(link = "log"),
+                data = fish_full_summary)
+
+summary(GLM1)
+
+plot(simulateResiduals(GLM1))  # looks good!
+
+reference_grid <-
+  expand.grid(nominal_MPs = unique(fish_full_summary$nominal_MPs),
+              polymer = unique(fish_full_summary$polymer),
+              organ = unique(fish_full_summary$organ))
+
+GLM1_pred <- 
+  as.data.frame(predict_response(GLM1, 
+                                 terms = reference_grid),
+                terms_to_colnames = TRUE)
+
+# Plot model predictions
+
+ggplot(GLM1_pred) +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted,
+                colour = polymer)) +
+  geom_point(data = fish_full_summary,
+             aes(x = nominal_MPs,
+                 y = count,
+                 fill = polymer),
+             shape = 21) +
+  facet_wrap(polymer ~ organ,
+             scales = "free_y") +
+  scale_fill_manual(values = c("pink",
+                               "yellow",
+                               "blue")) +
+  scale_colour_manual(values = c("pink",
+                                 "yellow",
+                                 "blue")) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(fish_full_summary$nominal_MPs)) +
+  scale_y_continuous(trans = "log1p") +
+  labs(x = "Nominal MPs per L",
+       y = "# MPs") +
+  theme_bw()
+
+# The model seems to be under-fitting at the high and low ends for PE
+# However DHARMa suggests the fit is fine
+
+##### Second method: GLM with addition/subtraction #####
+
+levels(SaR_means$polymer) <- c("PET", "PE", "PS"))
+
+fish_full_summary2 <-
+  fish_full_summary %>% 
+  left_join(SaR_means,
+            by = "polymer") %>% 
+  left_join(blank_means,
+            by = "polymer") %>% 
+  mutate(adjusted_count = floor((count / mean_prob_recovery) - mean_blanks))
+
+fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
+
+# Compare original and adjusted data
+
+ggplot(fish_full_summary2) +
+  geom_point(aes(x = log(count + 1), y = log(adjusted_count + 1)))
+
+# Now fit the model
+
+GLM2 <- glmmTMB(adjusted_count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
+                  (1 | corral / fish_ID),  # Need to figure out if this is OK
+                family = poisson(link = "log"),
+                data = fish_full_summary2)
+
+summary(GLM2)
+
+plot(simulateResiduals(GLM2))  # looks good!
+
+GLM2_pred <- 
+  as.data.frame(predict_response(GLM2, 
+                                 terms = reference_grid),
+                terms_to_colnames = TRUE)
+
+# Plot model predictions
+
+ggplot(GLM2_pred) +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted,
+                colour = polymer)) +
+  geom_point(data = fish_full_summary2,
+             aes(x = nominal_MPs,
+                 y = adjusted_count,
+                 fill = polymer),
+             shape = 21) +
+  facet_wrap(polymer ~ organ,
+             scales = "free_y") +
+  scale_fill_manual(values = c("pink",
+                               "yellow",
+                               "blue")) +
+  scale_colour_manual(values = c("pink",
+                                 "yellow",
+                                 "blue")) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(fish_full_summary$nominal_MPs)) +
+  scale_y_continuous(trans = "log1p") +
+  labs(x = "Nominal MPs per L",
+       y = "Adjusted # MPs") +
+  theme_bw()
