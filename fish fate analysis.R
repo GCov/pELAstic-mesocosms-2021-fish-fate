@@ -6,6 +6,12 @@ library(DHARMa)
 library(ggeffects)
 library(randomForest)
 library(caret)
+library(rstan)
+library(tidybayes)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
 
 #### Load Data and Prepare ####
 
@@ -587,7 +593,7 @@ ggplot(GLM1_pred) +
 
 ##### Second method: GLM with addition/subtraction #####
 
-levels(SaR_means$polymer) <- c("PET", "PE", "PS"))
+levels(SaR_means$polymer) <- c("PET", "PE", "PS")
 
 fish_full_summary2 <-
   fish_full_summary %>% 
@@ -602,7 +608,8 @@ fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
 # Compare original and adjusted data
 
 ggplot(fish_full_summary2) +
-  geom_point(aes(x = log(count + 1), y = log(adjusted_count + 1)))
+  geom_point(aes(x = count, y = adjusted_count)) +
+  geom_abline(aes(intercept = 0, slope = 1))
 
 # Now fit the model
 
@@ -650,3 +657,213 @@ ggplot(GLM2_pred) +
   labs(x = "Nominal MPs per L",
        y = "Adjusted # MPs") +
   theme_bw()
+
+##### Compare the first two models #####
+
+# Compare inference from the two models
+
+GLM1_pred$model <- "Model 1"
+GLM2_pred$model <- "Model 2"
+
+both_models <- rbind(GLM1_pred, GLM2_pred)
+
+ggplot(both_models) +
+  geom_errorbar(aes(x = as.factor(nominal_MPs),
+                    ymin = conf.low,
+                    ymax = conf.high,
+                    colour = "polymer"),
+                position = position_dodge2()) +
+  geom_point(aes(x = as.factor(nominal_MPs),
+                 y = predicted,
+                 fill = model),
+             shape = 21,
+             position = position_dodge2(width = 0.9)) +
+  scale_y_continuous(trans = "log1p") +
+  facet_wrap(polymer ~ organ,
+             scales = "free_y") +
+  scale_fill_manual(values = c("purple4", "red")) +
+  scale_colour_manual(values = c("purple4", "red")) +
+  labs(x = "Nominal MPs per L",
+       y = "Predicted # MPs") +
+  theme_bw()
+
+##### Third method: Bayesian GLM with built-in uncertainty #####
+
+###### Prepare data ######
+
+fish_full_summary$organ <- as.factor(as.character(fish_full_summary$organ))
+fish_full_summary$polymer <- as.factor(as.character(fish_full_summary$polymer))
+
+###### Fit the model ######
+
+GLM3_stan_data <-
+  with(fish_full_summary, 
+       list(fish_ID = as.integer(fish_ID), 
+            n_fish = length(fish_ID),
+            organ = model.matrix(~ organ - 1),
+            n_organ = length(unique(organ)),
+            polymer = model.matrix(~ polymer - 1),
+            n_polymer = length(unique(polymer)),
+            corral = as.integer(corral),
+            n_corral = length(unique(corral)),
+            log_organ_weight = as.numeric(log_organ_weight),
+            log_nominal_MPs = log(nominal_MPs + 6),
+            count = count,
+            n = nrow(fish_full_summary),
+            blanks_polymer = model.matrix(~ blanks_summary$polymer - 1),
+            blanks_count = blanks_summary$count,
+            n_blanks = nrow(blanks_summary),
+            recovery_polymer = model.matrix(~ SaR_summary$polymer - 1),
+            recovery_count = SaR_summary$recovery,
+            n_recovery = nrow(SaR_summary)))
+
+# Start simple with just a random effects model without blank/recovery
+# correction
+
+####### Uncorrected model #######
+
+GLM3_stan_program <- '
+data {
+  int<lower=1> n;                         // Number of observations
+  int<lower=1> n_fish;                    // Number of fish
+  int<lower=1> n_corral;                  // Number of corrals
+  int<lower=1, upper=n_fish> fish_ID[n];  // Fish identity
+  int<lower=1, upper=n_corral> corral[n]; // Corral identiy
+  vector[n] log_nominal_MPs;              // Continuous effect of nominal MP concentration
+  int<lower=1> n_organ;                   // Number of levels in organ
+  matrix[n, n_organ] organ;               // Organ as a matrix of indicators
+  int<lower=1> n_polymer;                 // Number of levels in polymer
+  matrix[n, n_polymer] polymer;           // Polymer as a matrix of indicators
+  int<lower=0> count[n];               // Microplastic count
+}
+
+parameters {
+  real beta_log_nominal_MPs;        // Slope for MP concentration
+  vector[n_organ] beta_organ;       // Coefficients for organ
+  vector[n_polymer] beta_polymer;   // Coefficients for polymer
+  vector[n_corral] u_corral;        // Random effect for corral
+  real<lower=0> sigma_corral;       // SD of corral random effect
+  vector[n_fish] u_fish;            // Random effect for fish
+  real<lower=0> sigma_fish;         // SD of fish random effect
+}
+
+model {
+  // Priors
+  beta_log_nominal_MPs ~ normal(0, 1);
+  beta_organ ~ normal(0, 1);
+  beta_polymer ~ normal(0, 10);
+  u_corral ~ normal(0, sigma_corral);
+  sigma_corral ~ cauchy(0, 2.5);
+  u_fish ~ normal(0, sigma_fish);
+  sigma_fish ~ cauchy(0, 2.5);
+
+  // Likelihood
+  count ~ poisson_log(beta_log_nominal_MPs * log_nominal_MPs 
+             + organ * beta_organ
+             + polymer * beta_polymer
+             + u_fish[fish_ID]
+             + u_corral[corral]);
+}
+ generated quantities {
+  int count_pred[n];
+  for (i in 1:n) {
+    count_pred[i] = poisson_log_rng(beta_log_nominal_MPs * log_nominal_MPs[i] 
+                               + organ[i]  * beta_organ
+                               + polymer[i]  * beta_polymer 
+                               + u_fish[fish_ID[i]]
+                               + u_corral[corral[i]]);
+  }
+}
+'
+
+set.seed(4245)
+
+GLM3 <- stan(model_code = GLM3_stan_program, data = GLM3_stan_data,
+             chains = 4, iter = 10000, warmup = 1000, thin = 1)
+
+traceplot(GLM3)
+
+GLM3_draws <-
+  GLM3  %>% 
+  gather_draws(beta_log_nominal_MPs, beta_organ[i], beta_polymer[i], 
+               sigma_fish, sigma_corral)
+
+GLM3_draws %>%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_halfeye(.width = c(.95, .5))
+
+GLM3_draws %>% 
+  group_by(.variable) %>% 
+  summarize(mean = mean(.value),
+            median = median(.value),
+            upper95 = quantile(.value, probs = 0.975),
+            lower95 = quantile(.value, probs = 0.025))
+
+# Diagnose with DHARMa
+
+# Extract posterior predictive samples
+
+GLM3_posterior_predict <- t(extract(GLM3)$count_pred)
+GLM3_predicted_means <- 
+  apply(GLM3_posterior_predict, 1, mean)  # Average predictions for each observation
+
+
+# Create a DHARMa object for residual diagnostics
+GLM3_simulation_output <- createDHARMa(
+  simulatedResponse = GLM3_posterior_predict, # Simulated response from posterior predictions
+  observedResponse = GLM3_stan_data$count,       # Observed data
+  fittedPredictedResponse = GLM3_predicted_means  # Mean predictions
+)
+
+# Plot residual diagnostics
+plot(GLM3_simulation_output)
+
+# Check for specific issues
+testDispersion(GLM3_simulation_output)  # Test for overdispersion
+testZeroInflation(GLM3_simulation_output)  # Test for zero inflation
+
+# Plot model predictions
+
+GLM3_predicted_lowerCI <-
+  apply(GLM3_posterior_predict, 1, quantile, probs = 0.025)
+GLM3_predicted_upperCI <-
+  apply(GLM3_posterior_predict, 1, quantile, probs = 0.0975)
+
+GLM3_predictions <-
+  data.frame(predicted = exp(GLM3_predicted_means),
+             conf.low = exp(GLM3_predicted_means),
+             conf.high = exp(GLM3_predicted_upperCI))
+
+fish_full_summary3 <-
+  fish_full_summary %>% 
+  cbind(GLM3_predictions)
+
+ggplot(fish_full_summary3) +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted,
+                colour = polymer)) +
+  geom_point(data = fish_full_summary,
+             aes(x = nominal_MPs,
+                 y = count,
+                 fill = polymer),
+             shape = 21) +
+  facet_wrap(polymer ~ organ,
+             scales = "free_y") +
+  scale_fill_manual(values = c("pink",
+                               "yellow",
+                               "blue")) +
+  scale_colour_manual(values = c("pink",
+                                 "yellow",
+                                 "blue")) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(fish_full_summary$nominal_MPs)) +
+  scale_y_continuous(trans = "log1p") +
+  labs(x = "Nominal MPs per L",
+       y = "# MPs") +
+  theme_bw()
+
