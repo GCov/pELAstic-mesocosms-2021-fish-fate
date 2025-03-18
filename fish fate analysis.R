@@ -8,6 +8,7 @@ library(randomForest)
 library(caret)
 library(rstan)
 library(tidybayes)
+library(posterior)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -536,7 +537,7 @@ fish_full_summary <-
   fish_full_summary %>% 
   mutate(log_organ_weight = log(organ_weight))
 
-##### First method: GLM #####
+##### First method: GLMM #####
 
 GLM1 <- glmmTMB(count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
                   (1 | corral / fish_ID),  # Need to figure out if this is OK
@@ -591,7 +592,7 @@ ggplot(GLM1_pred) +
 # The model seems to be under-fitting at the high and low ends for PE
 # However DHARMa suggests the fit is fine
 
-##### Second method: GLM with addition/subtraction #####
+##### Second method: GLMM with addition/subtraction #####
 
 levels(SaR_means$polymer) <- c("PET", "PE", "PS")
 
@@ -687,19 +688,28 @@ ggplot(both_models) +
        y = "Predicted # MPs") +
   theme_bw()
 
-##### Third method: Bayesian GLM with built-in uncertainty #####
+##### Third method: Bayesian GLMM with built-in uncertainty #####
 
 ###### Prepare data ######
 
 fish_full_summary$organ <- as.factor(as.character(fish_full_summary$organ))
 fish_full_summary$polymer <- as.factor(as.character(fish_full_summary$polymer))
+fish_full_summary$fish_ID <- as.factor(as.character(fish_full_summary$fish_ID))
 
-###### Fit the model ######
+# Create a reference grid for prediction
+
+fish_grid <-
+  with(fish_full_summary,
+       expand.grid(organ = unique(organ),
+                   polymer = unique(polymer),
+                   nominal_MPs = unique(nominal_MPs)))
+
+###### Fit the model #######
 
 GLM3_stan_data <-
   with(fish_full_summary, 
        list(fish_ID = as.integer(fish_ID), 
-            n_fish = length(fish_ID),
+            n_fish = length(unique(fish_ID)),
             organ = model.matrix(~ organ - 1),
             n_organ = length(unique(organ)),
             polymer = model.matrix(~ polymer - 1),
@@ -707,7 +717,7 @@ GLM3_stan_data <-
             corral = as.integer(corral),
             n_corral = length(unique(corral)),
             log_organ_weight = as.numeric(log_organ_weight),
-            log_nominal_MPs = log(nominal_MPs + 6),
+            nominal_MPs = nominal_MPs,
             count = count,
             n = nrow(fish_full_summary),
             blanks_polymer = model.matrix(~ blanks_summary$polymer - 1),
@@ -715,30 +725,38 @@ GLM3_stan_data <-
             n_blanks = nrow(blanks_summary),
             recovery_polymer = model.matrix(~ SaR_summary$polymer - 1),
             recovery_count = SaR_summary$recovery,
-            n_recovery = nrow(SaR_summary)))
+            n_recovery = nrow(SaR_summary),
+            n_grid = nrow(fish_grid),
+            organ_grid = model.matrix(~ fish_grid$organ - 1),
+            polymer_grid = model.matrix(~ fish_grid$polymer - 1),
+            MPs_grid = fish_grid$nominal_MPs))
 
-# Start simple with just a random effects model without blank/recovery
+# Start with just a random effects model without blank/recovery
 # correction
 
 ####### Uncorrected model #######
 
 GLM3_stan_program <- '
 data {
-  int<lower=1> n;                         // Number of observations
-  int<lower=1> n_fish;                    // Number of fish
-  int<lower=1> n_corral;                  // Number of corrals
-  int<lower=1, upper=n_fish> fish_ID[n];  // Fish identity
-  int<lower=1, upper=n_corral> corral[n]; // Corral identiy
-  vector[n] log_nominal_MPs;              // Continuous effect of nominal MP concentration
-  int<lower=1> n_organ;                   // Number of levels in organ
-  matrix[n, n_organ] organ;               // Organ as a matrix of indicators
-  int<lower=1> n_polymer;                 // Number of levels in polymer
-  matrix[n, n_polymer] polymer;           // Polymer as a matrix of indicators
-  int<lower=0> count[n];               // Microplastic count
+  int<lower=1> n;                               // Number of observations
+  int<lower=1> n_fish;                          // Number of fish
+  int<lower=1> n_corral;                        // Number of corrals
+  array[n] int<lower=1, upper=n_fish> fish_ID;  // Fish identity
+  array[n] int<lower=1, upper=n_corral> corral; // Corral identiy
+  vector[n] nominal_MPs;                        // Continuous effect of nominal MP concentration
+  int<lower=1> n_organ;                         // Number of levels in organ
+  matrix[n, n_organ] organ;                     // Organ as a matrix of indicators
+  int<lower=1> n_polymer;                       // Number of levels in polymer
+  matrix[n, n_polymer] polymer;                 // Polymer as a matrix of indicators
+  array[n] int<lower=0> count;                  // Microplastic count
+  int<lower=1> n_grid;                          // Number of predictions
+  matrix[n_grid, n_organ] organ_grid;           // Grid values for organ
+  matrix[n_grid, n_polymer] polymer_grid;       // Grid values for polymer
+  vector[n_grid] MPs_grid;                     // Grid values for nominal MPs
 }
 
 parameters {
-  real beta_log_nominal_MPs;        // Slope for MP concentration
+  real beta_nominal_MPs;            // Slope for MP concentration
   vector[n_organ] beta_organ;       // Coefficients for organ
   vector[n_polymer] beta_polymer;   // Coefficients for polymer
   vector[n_corral] u_corral;        // Random effect for corral
@@ -749,55 +767,97 @@ parameters {
 
 model {
   // Priors
-  beta_log_nominal_MPs ~ normal(0, 1);
+  beta_nominal_MPs ~ normal(0, 1);
   beta_organ ~ normal(0, 1);
-  beta_polymer ~ normal(0, 10);
+  beta_polymer ~ normal(0, 1);
   u_corral ~ normal(0, sigma_corral);
-  sigma_corral ~ cauchy(0, 2.5);
+  sigma_corral ~ exponential(1);
   u_fish ~ normal(0, sigma_fish);
-  sigma_fish ~ cauchy(0, 2.5);
+  sigma_fish ~ exponential(1);
 
   // Likelihood
-  count ~ poisson_log(beta_log_nominal_MPs * log_nominal_MPs 
+  count ~ poisson_log(beta_nominal_MPs * log(nominal_MPs + 6)
              + organ * beta_organ
              + polymer * beta_polymer
-             + u_fish[fish_ID]
-             + u_corral[corral]);
+             + u_corral[corral]
+             + u_fish[fish_ID]);
 }
  generated quantities {
-  int count_pred[n];
-  for (i in 1:n) {
-    count_pred[i] = poisson_log_rng(beta_log_nominal_MPs * log_nominal_MPs[i] 
-                               + organ[i]  * beta_organ
-                               + polymer[i]  * beta_polymer 
-                               + u_fish[fish_ID[i]]
-                               + u_corral[corral[i]]);
+  array[n_grid] int count_sim =                         // Simulate over grid 
+  poisson_log_rng(beta_nominal_MPs * log(MPs_grid + 6)
+  + organ_grid * beta_organ 
+  + polymer_grid * beta_polymer);
+  
+  array[n] int count_pred =                                   // Posterior predictive
+  poisson_log_rng(beta_nominal_MPs * log(nominal_MPs + 6)
+  + organ * beta_organ 
+  + polymer * beta_polymer +
+  u_corral[corral] +
+  u_fish[fish_ID]);
+  
+  real beta_nominal_MPs_prior = normal_rng(0, 1);
+  
+  vector[n_organ] beta_organ_prior;
+  for(i in 1:n_organ) beta_organ_prior[i] = normal_rng(0, 1);
+  
+  vector[n_polymer] beta_polymer_prior;
+  for(i in 1:n_polymer) beta_polymer_prior[i] = normal_rng(0, 1);
+  
+  real sigma_corral_prior = exponential_rng(1);
+  real u_corral_prior = normal_rng(0, sigma_corral_prior);
+  real sigma_fish_prior = exponential_rng(1);
+  real u_fish_prior = normal_rng(0, sigma_fish_prior);
+  
+  array[n_grid] int count_prior =                             // Prior predictive
+  poisson_log_rng(beta_nominal_MPs_prior * log(MPs_grid + 6)
+  + organ_grid * beta_organ_prior 
+  + polymer_grid * beta_polymer_prior 
+  + u_corral_prior 
+  + u_fish_prior);
   }
-}
 '
 
-set.seed(4245)
+set.seed(5454)
 
 GLM3 <- stan(model_code = GLM3_stan_program, data = GLM3_stan_data,
-             chains = 4, iter = 10000, warmup = 1000, thin = 1)
+             chains = 1, iter = 3000, warmup = 1000, thin = 1)
 
 traceplot(GLM3)
 
+summarize_draws(GLM3)
+
 GLM3_draws <-
   GLM3  %>% 
-  gather_draws(beta_log_nominal_MPs, beta_organ[i], beta_polymer[i], 
+  gather_draws(beta_nominal_MPs, beta_organ[i], beta_polymer[i], 
                sigma_fish, sigma_corral)
 
 GLM3_draws %>%
-  ggplot(aes(y = .variable, x = .value)) +
-  stat_halfeye(.width = c(.95, .5))
+  ggplot(aes(y = .variable, x = .value, group = i, fill = i)) +
+  stat_halfeye(.width = c(.95, .5), alpha = 0.75)
 
 GLM3_draws %>% 
-  group_by(.variable) %>% 
+  group_by(.variable,
+           i) %>% 
   summarize(mean = mean(.value),
             median = median(.value),
             upper95 = quantile(.value, probs = 0.975),
             lower95 = quantile(.value, probs = 0.025))
+
+# Prior predictive check
+
+GLM3_prior_predictive <- t(extract(GLM3)$count_prior)
+GLM3_prior_check <-
+  data.frame(prior.mean = apply(GLM3_prior_predictive,
+                                1,
+                                median),
+             conf.lower = apply(GLM3_prior_predictive,
+                                1,
+                                qunatile,
+                                probs = 0.025),
+             conf.lower = apply(GLM3_prior_predictive,
+                                1,
+                                qunatile,
+                                probs = 0.975))
 
 # Diagnose with DHARMa
 
@@ -822,23 +882,21 @@ plot(GLM3_simulation_output)
 testDispersion(GLM3_simulation_output)  # Test for overdispersion
 testZeroInflation(GLM3_simulation_output)  # Test for zero inflation
 
-# Plot model predictions
+# Plot simulations from the model
 
-GLM3_predicted_lowerCI <-
-  apply(GLM3_posterior_predict, 1, quantile, probs = 0.025)
-GLM3_predicted_upperCI <-
-  apply(GLM3_posterior_predict, 1, quantile, probs = 0.0975)
+GLM3_simulated <- t(extract(GLM3)$count_sim)
 
 GLM3_predictions <-
-  data.frame(predicted = exp(GLM3_predicted_means),
-             conf.low = exp(GLM3_predicted_means),
-             conf.high = exp(GLM3_predicted_upperCI))
+  data.frame(predicted = 
+               apply(GLM3_simulated, 1, median),
+             conf.low = apply(GLM3_simulated, 1, quantile, probs = 0.025),
+             conf.high = apply(GLM3_simulated, 1, quantile, probs = 0.975))
 
-fish_full_summary3 <-
-  fish_full_summary %>% 
+GLM3_predictions <-
+  fish_grid %>% 
   cbind(GLM3_predictions)
 
-ggplot(fish_full_summary3) +
+ggplot(GLM3_predictions) +
   geom_ribbon(aes(x = nominal_MPs,
                   ymin = conf.low,
                   ymax = conf.high,
@@ -854,16 +912,36 @@ ggplot(fish_full_summary3) +
              shape = 21) +
   facet_wrap(polymer ~ organ,
              scales = "free_y") +
-  scale_fill_manual(values = c("pink",
-                               "yellow",
-                               "blue")) +
-  scale_colour_manual(values = c("pink",
-                                 "yellow",
-                                 "blue")) +
+  scale_fill_manual(values = c("yellow",
+                               "blue",
+                               "pink")) +
+  scale_colour_manual(values = c("yellow",
+                                 "blue",
+                                 "pink")) +
   scale_x_continuous(trans = "log1p",
                      breaks = unique(fish_full_summary$nominal_MPs)) +
-  scale_y_continuous(trans = "log1p") +
   labs(x = "Nominal MPs per L",
        y = "# MPs") +
+  theme_bw()
+
+ggplot(GLM3_predictions) +
+  geom_errorbar(aes(x = as.factor(nominal_MPs),
+                    ymin = conf.low,
+                    ymax = conf.high,
+                    colour = polymer)) +
+  geom_point(aes(x = as.factor(nominal_MPs),
+                 y = predicted),
+             shape = 21) +
+  scale_y_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  facet_wrap(polymer ~ organ) +
+  scale_fill_manual(values = c("yellow",
+                               "blue",
+                               "pink")) +
+  scale_colour_manual(values = c("yellow",
+                                 "blue",
+                                 "pink")) +
+  labs(x = "Nominal MPs per L",
+       y = "Predicted # MPs") +
   theme_bw()
 
