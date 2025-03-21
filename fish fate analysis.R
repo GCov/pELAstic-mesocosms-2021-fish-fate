@@ -1968,11 +1968,16 @@ model {
   
   recovery_count ~ binomial(10, theta);
   
-  count ~ poisson_log(beta_nominal_MPs * nominal_MPs
+  array[n] real mu_real = beta_nominal_MPs * nominal_MPs
                         + organ * beta_organ
                         + polymer * beta_polymer
                         + u_corral[corral]
-                        + u_fish[fish_ID]);
+                        + u_fish[fish_ID];
+  
+  array[n] int real_count
+  real_count ~ poisson_log(mu_real);
+                        
+  count ~ binomial(real_count + polymer * beta_contamination, p_recovery);
 }
  generated quantities {
   real u_fish_sim = normal_rng(0, sigma_fish);
@@ -1983,14 +1988,12 @@ model {
   + organ_grid * beta_organ 
   + polymer_grid * beta_polymer +
   u_corral_sim                                        // Include random effects
-  + u_fish_sim 
-  - polymer_grid * beta_contamination);
+  + u_fish_sim);
   
   array[n] int count_pred =                             // Posterior predictive
   poisson_log_rng(beta_nominal_MPs * nominal_MPs
   + organ * beta_organ 
-  + polymer * beta_polymer
-  - polymer * beta_contamination);
+  + polymer * beta_polymer);
   }
 '
 
