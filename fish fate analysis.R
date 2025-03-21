@@ -1909,6 +1909,8 @@ ggplot(brm1_posterior) +
 
 ###### Attempt 6 - Corrected######
 
+## Start by just adding the contamination process
+
 GLM3.5_stan_program <- '
 data {
   int<lower=1> n;                               // Number of observations
@@ -1946,71 +1948,69 @@ parameters {
   vector[n_polymer] theta;           // probability of recovery by polymer
 }
 
-transformed parameters {
-  vector[n_polymer] beta_contamination = beta_polymer_blanks;
-  vector[n_polymer] p_recovery = theta;
-}
-
 model {
   // Priors
-  beta_nominal_MPs ~ normal(1, 1);
-  beta_organ ~ normal(0, 1);
-  beta_polymer ~ normal(0, 1);
+  beta_nominal_MPs ~ normal(0, 10);
+  beta_organ ~ normal(0, 10);
+  beta_polymer ~ normal(0, 10);
   u_corral ~ normal(0, sigma_corral);
-  sigma_corral ~ exponential(10);
+  sigma_corral ~ cauchy(0, 5);
   u_fish ~ normal(0, sigma_fish);
-  sigma_fish ~ exponential(10);
-  beta_polymer_blanks ~ normal(0,1);
-  theta ~ beta(1,1);
+  sigma_fish ~ cauchy(0, 5);
+  beta_polymer_blanks ~ normal(0,10);
 
   // Likelihood
-  blanks_count ~ poisson_log(blanks_polymer * beta_polymer_blanks);
+  vector[n_blanks] lambda_contamination = 
+                      exp(blanks_polymer * beta_polymer_blanks);
+  blanks_count ~ poisson(lambda_contamination);
   
-  recovery_count ~ binomial(10, theta);
+  // Environmental process
+  vector[n] lambda_environment = exp(beta_nominal_MPs * nominal_MPs
+                                      + organ * beta_organ
+                                      + polymer * beta_polymer
+                                      + u_corral[corral]
+                                      + u_fish[fish_ID]);
+                                      
+  // Contamination process
+  vector[n] lambda_total = lambda_environment + 
+                            exp(polymer * beta_polymer_blanks);
   
-  array[n] real mu_real = beta_nominal_MPs * nominal_MPs
-                        + organ * beta_organ
-                        + polymer * beta_polymer
-                        + u_corral[corral]
-                        + u_fish[fish_ID];
-  
-  array[n] int real_count
-  real_count ~ poisson_log(mu_real);
-                        
-  count ~ binomial(real_count + polymer * beta_contamination, p_recovery);
+  // Observed counts
+  count ~ poisson(lambda_total);
 }
- generated quantities {
-  real u_fish_sim = normal_rng(0, sigma_fish);
-  real u_corral_sim = normal_rng(0, sigma_corral);
- 
-  array[n_grid] int count_sim =                         // Simulate over grid 
-  poisson_log_rng(beta_nominal_MPs * MPs_grid
-  + organ_grid * beta_organ 
-  + polymer_grid * beta_polymer +
-  u_corral_sim                                        // Include random effects
-  + u_fish_sim);
+
+generated quantities {
   
-  array[n] int count_pred =                             // Posterior predictive
-  poisson_log_rng(beta_nominal_MPs * nominal_MPs
-  + organ * beta_organ 
-  + polymer * beta_polymer);
+  // Posterior predictive samples
+  array[n] int count_pred;
+  vector[n] lambda_environment = exp(beta_nominal_MPs * nominal_MPs
+                                      + organ * beta_organ 
+                                      + polymer * beta_polymer
+                                      + u_corral[corral] 
+                                      + u_fish[fish_ID]);
+  vector[n] lambda_total = lambda_environment 
+                            + exp(polymer * beta_polymer_blanks);
+  
+  for (i in 1:n) {
+    count_pred[i] = poisson_rng(lambda_total[i]);
+  }                          
   }
 '
 
 set.seed(5454)
 
 GLM3.5 <- stan(model_code = GLM3.5_stan_program, data = GLM3_stan_data,
-             chains = 4, iter = 2000, warmup = 1000, thin = 1)
+             chains = 1, iter = 2000, warmup = 1000, thin = 1)
 
 traceplot(GLM3.5)
 
-GLM3.5_summary <- summarize_draws(GLM3.5)  # Looks good!
+GLM3.5_summary <- summarize_draws(GLM3.5)
 
 GLM3.5_draws <-
   GLM3.5  %>% 
   gather_draws(beta_nominal_MPs, beta_organ[i], beta_polymer[i], 
                sigma_fish, sigma_corral,
-               beta_contamination[i])
+               beta_polymer_blanks[i])
 
 GLM3.5_draws %>%
   ggplot(aes(y = .variable, x = .value, group = i, fill = i)) +
@@ -2050,7 +2050,7 @@ testZeroInflation(GLM3.5_simulation_output)  # Test for zero inflation
 
 # Plot simulations from the model
 
-GLM3.5_simulated <- t(extract(GLM3.5)$count_sim)
+GLM3.5_simulated <- t(extract(GLM3.5)$count_pred)
 
 GLM3.5_predictions <-
   data.frame(predicted = 
@@ -2059,7 +2059,7 @@ GLM3.5_predictions <-
              conf.high = apply(GLM3.5_simulated, 1, quantile, probs = 0.975))
 
 GLM3.5_predictions <-
-  fish_grid %>% 
+  fish_full_summary %>% 
   cbind(GLM3.5_predictions)
 
 ggplot(GLM3.5_predictions) +
@@ -2087,3 +2087,16 @@ ggplot(GLM3.5_predictions) +
   labs(x = "Nominal MPs per L",
        y = "# MPs") +
   theme_bw()
+
+
+// Simulate random effects
+real u_fish_sim = normal_rng(0, sigma_fish);
+real u_corral_sim = normal_rng(0, sigma_corral);
+
+// Simulate over grid 
+array[n_grid] int count_sim =                         
+  poisson_log_rng(beta_nominal_MPs * MPs_grid
+                  + organ_grid * beta_organ 
+                  + polymer_grid * beta_polymer +
+                    u_corral_sim                                        // Include random effects
+                  + u_fish_sim);
