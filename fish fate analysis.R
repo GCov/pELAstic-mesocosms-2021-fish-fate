@@ -2261,17 +2261,18 @@ generated quantities {
   
   // Posterior predictive samples (no random effects)
   array[n] int count_pred;
+  array[n] int count_environment;
   vector[n] lambda_environment = exp((organ * beta_nominal_MPs) .* nominal_MPs
                                       + organ * beta_organ 
                                       + polymer * beta_polymer);
   vector[n] lambda_total = lambda_environment 
                             + exp(polymer * beta_polymer_blanks);
+                            
+  vector[n] lambda_sample = lambda_total .* (polymer * recovery_prob);
   
   for (i in 1:n) {
-    count_pred[i] = poisson_rng(lambda_total[i] * 
-                                  (polymer[i] * recovery_prob));
-                                  
-  array[n] int count_total = poisson_rng(lambda_total);
+    count_pred[i] = poisson_rng(lambda_sample[i]);
+    count_environment[i] = poisson_rng(lambda_environment[i]);
   }
   }
 '
@@ -2316,8 +2317,9 @@ GLM3.6_draws %>%
 # Extract posterior predictive samples
 
 GLM3.6_posterior_predict <- t(extract(GLM3.6)$count_pred)
+GLM3.6_posterior_mean <- t(extract(GLM3.6)$lambda_sample)
 GLM3.6_predicted_means <- 
-  apply(GLM3.6_posterior_predict, 1, mean)  # Average predictions for each observation
+  apply(GLM3.6_posterior_mean, 1, median)  # Average predictions for each observation
 
 
 # Create a DHARMa object for residual diagnostics
@@ -2379,19 +2381,86 @@ ggplot(GLM3.6_predictions) +
        y = "# MPs") +
   theme_bw()
 
-# Plot predicted 'real' MP counts
+# Plot lambda_sample with lambda_environment
 
-GLM3.6_real <- t(extract(GLM3.6)$lambda_total)
+GLM3.6_sample <- t(extract(GLM3.6)$lambda_sample)
+
+GLM3.6_total_summary <-
+  data.frame(predicted.sample = 
+               apply(GLM3.6_sample, 1, median),
+             conf.low.sample = apply(GLM3.6_sample, 1, quantile, probs = 0.025),
+             conf.high.sample = apply(GLM3.6_sample, 1, quantile, probs = 0.975))
+
+GLM3.6_environment <- t(extract(GLM3.6)$lambda_environment)
+
+GLM3.6_environment_summary <-
+  data.frame(predicted.environment = 
+               apply(GLM3.6_total, 1, median),
+             conf.low.environment = apply(GLM3.6_environment, 1, 
+                                          quantile, probs = 0.025),
+             conf.high.environment = apply(GLM3.6_environment, 1, 
+                                           quantile, probs = 0.975))
+
+GLM3.6_real_summary <-
+  fish_full_summary %>% 
+  cbind(GLM3.6_total_summary) %>% 
+  cbind(GLM3.6_environment_summary)
+  
+
+ggplot(GLM3.6_real_summary) +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low.sample,
+                  ymax = conf.high.sample,
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted.sample,
+                colour = polymer)) +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low.environment,
+                  ymax = conf.high.environment),
+              alpha = 0.3,
+              fill = "brown") +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted.environment),
+            colour = "brown") +
+  geom_point(data = fish_full_summary,
+             aes(x = nominal_MPs,
+                 y = count,
+                 fill = polymer),
+             shape = 21) +
+  facet_wrap(polymer ~ organ,
+             scales = "free_y") +
+  scale_fill_manual(values = c("yellow",
+                               "blue",
+                               "pink")) +
+  scale_colour_manual(values = c("yellow3",
+                                 "blue",
+                                 "pink")) +
+  scale_y_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(GLM3.6_predictions$nominal_MPs)) +
+  labs(x = "Nominal MPs per L",
+       y = "# MPs") +
+  theme_bw()
+
+# Plot simulated 'real' concentrations
+
+GLM3.6_real<- t(extract(GLM3.6)$count_environment)
 
 GLM3.6_real_summary <-
   data.frame(predicted = 
                apply(GLM3.6_real, 1, median),
-             conf.low = apply(GLM3.6_real, 1, quantile, probs = 0.025),
-             conf.high = apply(GLM3.6_real, 1, quantile, probs = 0.975))
+             conf.low = apply(GLM3.6_real, 1, 
+                                          quantile, probs = 0.025),
+             conf.high = apply(GLM3.6_real, 1, 
+                                           quantile, probs = 0.975))
 
 GLM3.6_real_summary <-
   fish_full_summary %>% 
   cbind(GLM3.6_real_summary)
+
 
 ggplot(GLM3.6_real_summary) +
   geom_ribbon(aes(x = nominal_MPs,
