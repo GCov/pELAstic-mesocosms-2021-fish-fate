@@ -1892,20 +1892,17 @@ parameters {
   real<lower=0> sigma_fish;         // SD of fish random effect
   vector[n_polymer] beta_polymer_blanks; // Coefficient for blanks polymer
   vector<lower=0, upper=1>[n_polymer] recovery_prob; // Probability of recovery
-  real<lower=0> phi_contamination;  // dispersion parameter for blanks
   real<lower=0> phi_total;          // dispersion parameter for observed counts
 }
 
 model {
   // Priors
   beta_nominal_MPs ~ normal(0.3, 1);
-  beta_organ[1] ~ normal(0, 0.1);
-  beta_organ[2] ~ normal(1, 0.1);
-  beta_organ[3] ~ normal(0, 0.1);
-  beta_polymer ~ normal(0, 0.1);
+  beta_organ ~ normal(0, 1);
+  beta_polymer ~ normal(0, 1);
   u_fish ~ normal(0, sigma_fish);
   sigma_fish ~ cauchy(0, 0.1);
-  beta_polymer_blanks ~ normal(0,0.1);
+  beta_polymer_blanks ~ normal(0,1);
   recovery_prob ~ beta(10, 2);
   phi_total ~ gamma(10, 10);
   
@@ -1950,7 +1947,7 @@ generated quantities {
 '
 
 GLM3.7 <- stan(model_code = GLM3.7_stan_program, data = GLM3_stan_data,
-               chains = 1, iter = 4000, warmup = 2000, thin = 1)
+               chains = 4, iter = 10000, warmup = 2000, thin = 1)
 
 traceplot(GLM3.7, pars = c("beta_nominal_MPs",
                            "beta_organ",
@@ -2076,6 +2073,8 @@ GLM3.7_real_summary <-
   cbind(GLM3.7_total_summary) %>% 
   cbind(GLM3.7_environment_summary)
 
+tiff("Estimated Environmental Mu Plot.tiff", width = 18, height = 15, units = "cm",
+     res = 500)
 
 ggplot(GLM3.7_real_summary) +
   geom_ribbon(aes(x = nominal_MPs,
@@ -2099,16 +2098,23 @@ ggplot(GLM3.7_real_summary) +
                  y = count,
                  fill = polymer),
              shape = 21) +
-  facet_wrap(polymer ~ organ,
+  facet_grid(organ ~ polymer,
              scales = "free_y") +
   scale_fill_manual(values = c("yellow",
                                "blue",
-                               "pink")) +
+                               "pink"),
+                    name = "") +
   scale_colour_manual(values = c("yellow3",
                                  "blue",
-                                 "pink")) +
+                                 "pink"),
+                      name = "") +
   scale_x_continuous(trans = "log1p",
                      breaks = unique(GLM3.7_predictions$nominal_MPs)) +
-  labs(x = "Nominal MPs per L",
-       y = "# MPs") +
-  theme_bw()
+  scale_y_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
+       y = expression(paste("Microplastics "*individual^-1))) +
+  theme1 +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
