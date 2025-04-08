@@ -915,3 +915,80 @@ fish_wide <-
          -liver_weight, -gill_weight, -log_organ_weight) %>% 
   pivot_wider(names_from = c(organ),
               values_from = adjusted_count)
+
+##### GIT and liver #####
+
+organmod1 <- glmmTMB(Liver ~ 
+                       log(GIT + 1) * polymer +
+                       (1 | corral),
+                     family = poisson(link = "log"),
+                     data = fish_wide)
+
+plot(simulateResiduals(organmod1, integerResponse = TRUE))
+
+plotResiduals(organmod1, fish_wide$total_length)
+
+summary(organmod1)  # not sig.
+
+##### GIT and fillet #####
+
+organmod2 <- glmmTMB(Fillet ~ 
+                       log(GIT + 1) * polymer +
+                       (1 | corral),
+                     family = poisson(link = "log"),
+                     data = fish_wide)
+
+plot(simulateResiduals(organmod2, integerResponse = TRUE))
+
+plotResiduals(organmod2, fish_wide$total_length)
+
+summary(organmod2)  # not sig
+
+#### Explore particle size and shape ####
+
+str(fish2)
+
+
+# Isolate rows with particle measurement
+
+measurements <-
+  fish4 %>% 
+  filter(!is.na(length) & organ != "Gill" & polymer != "Contamination")
+
+# Plot
+
+tiff("Shape Plot.tiff", width = 18, height = 6, units = "cm",
+     res = 500)
+
+ggplot(measurements) +
+  geom_point(aes(x = width *1000,
+                 y = length * 1000,
+                 fill = organ),
+             shape = 21,
+             size = 1) +
+  facet_grid(. ~ polymer) +
+  labs(x = expression(paste("Width ("*mu*"m)")),
+       y = expression(paste("Length ("*mu*"m)"))) +
+  scale_fill_viridis_d(option = "viridis",
+                       name = "") +
+  theme1
+
+dev.off()
+
+# Statistical differences??
+
+length.mod1 <- lm(log(length) ~ organ, data = measurements)
+summary(length.mod1)
+
+plot(simulateResiduals(length.mod1))
+
+test_predictions(length.mod1, terms = c("organ"))  # Nothing sig.
+
+width.mod1 <- lm(log(width) ~ organ, data = measurements)
+summary(width.mod1)
+
+plot(simulateResiduals(width.mod1))
+
+test_predictions(width.mod1, terms = c("organ"))  
+# liver particles narrower than GIT 
+
