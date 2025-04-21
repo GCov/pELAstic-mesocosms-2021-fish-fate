@@ -32,7 +32,7 @@ fish <- read.csv("fish_data.csv",
 
 str(fish)
 
-# Add treatments
+# Add treatments and change name of organ from fillet to muscle
 
 treatments <- 
   data.frame(corral = as.factor(c("B", "C", "D", "E", "F", "G", "H", "I")),
@@ -42,6 +42,8 @@ fish2 <-
   fish %>% 
   left_join(treatments,
             by = "corral")
+
+levels(fish2$organ) <- c("Muscle", "Gill", "GIT", "Liver")
 
 # Add biometrics data
 
@@ -955,26 +957,6 @@ measurements <-
   fish4 %>% 
   filter(!is.na(length) & organ != "Gill" & polymer != "Contamination")
 
-# Plot
-
-tiff("Shape Plot.tiff", width = 18, height = 6, units = "cm",
-     res = 500)
-
-ggplot(measurements) +
-  geom_point(aes(x = width *1000,
-                 y = length * 1000,
-                 fill = organ),
-             shape = 21,
-             size = 1) +
-  facet_grid(. ~ polymer) +
-  labs(x = expression(paste("Width ("*mu*"m)")),
-       y = expression(paste("Length ("*mu*"m)"))) +
-  scale_fill_viridis_d(option = "viridis",
-                       name = "") +
-  theme1
-
-dev.off()
-
 # Statistical differences??
 
 length.mod1 <- lm(log(length) ~ organ, data = measurements)
@@ -991,4 +973,63 @@ plot(simulateResiduals(width.mod1))
 
 test_predictions(width.mod1, terms = c("organ"))  
 # liver particles narrower than GIT 
+
+length.predict <- 
+  as.data.frame(predict_response(length.mod1,
+                                 terms = "organ"),
+                terms_to_colnames = TRUE)
+
+width.predict <-
+  as.data.frame(predict_response(width.mod1,
+                                 terms = "organ"),
+                terms_to_colnames = TRUE)
+
+size.predict <- 
+  length.predict %>% 
+  mutate(width.predicted = width.predict$predicted,
+         width.conf.low = width.predict$conf.low,
+         width.conf.high= width.predict$conf.high)
+
+# Plot
+
+tiff("Shape Plot.tiff", width = 18, height = 6, units = "cm",
+     res = 500)
+
+ggplot(measurements) +
+  geom_point(aes(x = width * 1000,
+                 y = length * 1000,
+                 fill = polymer),
+             shape = 21,
+             size = 0.75) +
+  geom_point(data = size.predict,
+             aes(x = width.predicted * 1000,
+                 y = predicted * 1000),
+             colour = "red",
+             size = 1.5) +
+  geom_linerange(data = size.predict,
+                 aes(xmin = width.conf.low * 1000,
+                     xmax = width.conf.high * 1000,
+                     y = predicted * 1000),
+                 colour = "red",
+                 linewidth = 0.5) +
+  geom_linerange(data = size.predict,
+                 aes(ymin = conf.low * 1000,
+                     ymax = conf.high * 1000,
+                     x = width.predicted * 1000),
+                 colour = "red",
+                 linewidth = 0.5) +
+  facet_grid(. ~ organ) +
+  labs(x = expression(paste("Width ("*mu*"m)")),
+       y = expression(paste("Length ("*mu*"m)"))) +
+  scale_fill_manual(values = c("yellow",
+                               "blue",
+                               "pink"),
+                    name = "Polymer") +
+  scale_x_continuous(limits = c(0,700),
+                     expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,2500),
+                     expand = c(0,0)) +
+  theme1
+
+dev.off()
 
