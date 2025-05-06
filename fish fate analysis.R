@@ -108,6 +108,11 @@ summary(spectroscopy_particles$count_ID)
 summary(spectroscopy_particles$spectroscopy_method)  # decent data for each method
 summary(spectroscopy_particles$spectroscopy_ID)
 
+spectroscopy_summary<- 
+  spectroscopy_particles %>% 
+  group_by(count_ID, spectroscopy_ID, organ) %>% 
+  summarize(count = length(spectroscopy_ID))
+
 ggplot(spectroscopy_particles, 
        aes(x = count_ID, 
            fill = spectroscopy_ID)) + 
@@ -524,11 +529,6 @@ SaR_means <-
 
 # See how organ concentration relate to nominal exposure concentrations
 
-# I'm going to try this 3 ways:
-# 1) GLM with no correction
-# 2) GLM with recovery addition and blank subtraction
-# 3) GLM fitted with stan incorporating recovery and contamination
-
 # I need to generate a new column in the data for weight of the specific organ
 # for each row
 
@@ -547,146 +547,16 @@ fish_full_summary <-
   fish_full_summary %>% 
   mutate(log_organ_weight = log(organ_weight))
 
-##### First method: GLMM #####
-
-# Compare a few different ways of fitting the model
-
-# Poisson, no interactions
-
-GLM1 <- glmmTMB(count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
-                  (1 | corral) + (1 | fish_ID),
-                family = poisson(link = "log"),
-                data = fish_full_summary)
-
-summary(GLM1)
-
-plot(simulateResiduals(GLM1, integerResponse = TRUE))  # pass
-
-# Poisson, 3-way interaction
-
-GLM1.1 <- glmmTMB(count ~ 0 + polymer * organ * log(nominal_MPs + 6) +
-                  (1 | corral) + (1 | fish_ID),
-                family = poisson(link = "log"),
-                data = fish_full_summary)  # Poisson, 3-way interaction
-
-summary(GLM1.1)
-
-plot(simulateResiduals(GLM1.1, integerResponse = TRUE))  # fail, exclude
-
-# Poisson, 2 2-way interactions
-
-GLM1.2 <- glmmTMB(count ~ 0 + polymer * log(nominal_MPs + 6) + organ * log(nominal_MPs + 6) +
-                  (1 | corral) + (1 | fish_ID),
-                family = poisson(link = "log"),
-                data = fish_full_summary)  # Poisson, no interactions
-
-summary(GLM1.2)
-
-plot(simulateResiduals(GLM1.2, integerResponse = TRUE))  # fail, exclude
-
-# NBinom1, no interactions
-
-GLM1.3 <- glmmTMB(count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
-                  (1 | corral) + (1 | fish_ID),
-                family = nbinom1(link = "log"),
-                data = fish_full_summary)
-
-summary(GLM1.3)
-
-plot(simulateResiduals(GLM1.3, integerResponse = TRUE))  # fail, exclude
-
-# Nbinom2, no interactions
-
-GLM1.4 <- glmmTMB(count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
-                  (1 | corral) + (1 | fish_ID),
-                family = nbinom2(link = "log"),
-                data = fish_full_summary)
-
-summary(GLM1.4)
-
-plot(simulateResiduals(GLM1.4, integerResponse = TRUE))  # pass
-
-# Nbinom2, 3-way interaction
-
-GLM1.5 <- glmmTMB(count ~ 0 + polymer * organ * log(nominal_MPs + 6) +
-                    (1 | corral) + (1 | fish_ID),
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary)
-
-summary(GLM1.5)
-
-plot(simulateResiduals(GLM1.5, integerResponse = TRUE))  # pass
-
-# Nbinom2, 2-way interactions
-
-GLM1.6 <- glmmTMB(count ~ 0 + polymer * log(nominal_MPs + 6) + 
-                    organ * log(nominal_MPs + 6) +
-                    (1 | corral) + (1 | fish_ID),
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary)
-
-summary(GLM1.6)
-
-plot(simulateResiduals(GLM1.6, integerResponse = TRUE))  # pass
-
-# Compare the 4 passing models with AIC
-
-AIC(GLM1,
-    GLM1.4,
-    GLM1.5,
-    GLM1.6)
-
-# Lowest AIC score is for GLM 1.4, which is the NB2 model with no interactions
-
-# Predict from GLM 1.4
-
+# grid for prediction
 reference_grid <-
   expand.grid(nominal_MPs = unique(fish_full_summary$nominal_MPs),
-              polymer = unique(fish_full_summary$polymer),
-              organ = unique(fish_full_summary$organ))
+              polymer = unique(fish_full_summary$polymer))
 
-GLM1.4_pred <- 
-  as.data.frame(predict_response(GLM1.4, 
-                                 terms = reference_grid),
-                terms_to_colnames = TRUE)
+##### GLMM with addition/subtraction #####
 
-# Plot model predictions
+## Modified to use separate models for each organ
 
-ggplot(GLM1.4_pred) +
-  geom_ribbon(aes(x = nominal_MPs,
-                  ymin = conf.low,
-                  ymax = conf.high,
-                  fill = polymer),
-              alpha = 0.3) +
-  geom_line(aes(x = nominal_MPs,
-                y = predicted,
-                colour = polymer)) +
-  geom_point(data = fish_full_summary,
-             aes(x = nominal_MPs,
-                 y = count,
-                 fill = polymer),
-             shape = 21) +
-  facet_wrap(polymer ~ organ,
-             scales = "free_y") +
-  scale_fill_manual(values = c("pink",
-                               "yellow",
-                               "blue")) +
-  scale_colour_manual(values = c("pink",
-                                 "yellow3",
-                                 "blue")) +
-  scale_x_continuous(trans = "log1p",
-                     breaks = unique(fish_full_summary$nominal_MPs)) +
-  labs(x = "Nominal MPs per L",
-       y = "# MPs") +
-  theme_bw()
-
-# The model seems to be under-predicting at the high end for GIT PE, but 
-# because it's a log-relationship it still meets the assumptions fine
-
-
-##### Second method: GLMM with addition/subtraction #####
-
-###### Correct data #####
+###### Corrected data #####
 
 levels(SaR_means$polymer) <- c("PET", "PE", "PS")
 
@@ -707,107 +577,102 @@ ggplot(fish_full_summary2) +
   geom_abline(aes(intercept = 0, slope = 1)) +
   facet_wrap(polymer ~ organ, scales = "free")
 
-# Now fit the model
+# Separate data by organ
+
+GITs <-
+  fish_full_summary2 %>% 
+  filter(organ == "GIT")
+
+livers <- 
+  fish_full_summary2 %>% 
+  filter(organ == "Liver")
+
+muscle <-
+  fish_full_summary2 %>% 
+  filter(organ == "Muscle")
+
+# Now fit the models
+
+###### GITs ####
 
 # Poisson, no interactions
 
-GLM2 <- glmmTMB(adjusted_count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
-                  (1 | corral / fish_ID),  # Need to figure out if this is OK
+GIT_mod1 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
                 family = poisson(link = "log"),
-                data = fish_full_summary2)
+                data = GITs)
 
-plot(simulateResiduals(GLM2))  # pass
+plot(simulateResiduals(GIT_mod1))  # fail
 
-# Poisson, 3-way interaction
+# Poisson, 2-way interaction
 
-GLM2.1 <- glmmTMB(adjusted_count ~ 0 + polymer * organ * log(nominal_MPs + 6) +
-                  (1 | corral / fish_ID),  # Need to figure out if this is OK
-                family = poisson(link = "log"),
-                data = fish_full_summary2)
+GIT_mod2 <-
+  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
+          family = poisson(link = "log"),
+          data = GITs)
 
-plot(simulateResiduals(GLM2.1))  # fail
-
-# Poisson, 2-way interactions
-
-GLM2.2 <- glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-                    organ * log(nominal_MPs + 6) +
-                  (1 | corral / fish_ID),  # Need to figure out if this is OK
-                family = poisson(link = "log"),
-                data = fish_full_summary2)
-
-plot(simulateResiduals(GLM2.2))  # fail
+plot(simulateResiduals(GIT_mod2))  # fail
 
 # Negative binomial, no interactions
 
-GLM2.3 <- glmmTMB(adjusted_count ~ 0 + polymer + organ + log(nominal_MPs + 6) +
-                    (1 | corral / fish_ID),  # Need to figure out if this is OK
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary2)
+GIT_mod3 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
+          family = nbinom2(link = "log"),
+          data = GITs)
 
-plot(simulateResiduals(GLM2.3))  # pass
+plot(simulateResiduals(GIT_mod3))  # fail
+
+# Negative binomial, 2-way interaction
+
+GIT_mod4 <-
+  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
+          family = nbinom2(link = "log"),
+          data = GITs)
+
+plot(simulateResiduals(GIT_mod4))  # fail
 
 # Negative binomial, 3-way interaction
 
-GLM2.4 <- glmmTMB(adjusted_count ~ 0 + polymer * organ * log(nominal_MPs + 6) +
-                    (1 | corral / fish_ID),  # Need to figure out if this is OK
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary2)
+GIT_mod5 <-
+  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) * 
+            log(total_length) + (1 | corral),
+          family = nbinom2(link = "log"),
+          data = GITs)
 
-plot(simulateResiduals(GLM2.4))  # pass
+plot(simulateResiduals(GIT_mod5))  # pass
 
-# Negative binomial, 2-way interactions
+summary(GIT_mod5)
 
-GLM2.5 <- glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-                    organ * log(nominal_MPs + 6) +
-                    (1 | corral / fish_ID),  # Need to figure out if this is OK
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary2)
+GIT_mod5.1 <-
+  glmmTMB(adjusted_count ~ 1,
+          family = nbinom2(link = "log"),
+          data = GITs)
+anova(GIT_mod5, GIT_mod5.1)  # chi2 = 73.20, p < 0.001
 
-plot(simulateResiduals(GLM2.5))  # fail
-
-# Negative binomial, only polymer interaction
-
-GLM2.6 <- glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-                    organ + log(nominal_MPs + 6) +
-                    (1 | corral / fish_ID),  # Need to figure out if this is OK
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary2)
-
-plot(simulateResiduals(GLM2.6))  # pass
-
-# Negative binomial, only organ interaction
-
-GLM2.7 <- glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
-                    organ * log(nominal_MPs + 6) +
-                    (1 | corral / fish_ID),  # Need to figure out if this is OK
-                  family = nbinom2(link = "log"),
-                  data = fish_full_summary2)
-
-plot(simulateResiduals(GLM2.7))  # pass
-
-
-# Compare AIC for passing models
-AIC(GLM2, GLM2.3, GLM2.4, GLM2.6, GLM2.7)  # GLM 2.6 is the best
-
-GLM2_pred <- 
-  as.data.frame(predict_response(GLM2.6, 
+GIT_mod_pred <- 
+  as.data.frame(predict_response(GIT_mod5, 
                                  terms = reference_grid),
                 terms_to_colnames = TRUE)
-GLM2_sim <- 
-  as.data.frame(predict_response(GLM2.6, 
+GIT_mod_sim <- 
+  as.data.frame(predict_response(GIT_mod5, 
                                  terms = reference_grid,
-                                 type = "simulate"),
+                                 type = "simulate",
+                                 nsim = 1000),
                 terms_to_colnames = TRUE)
 
 # Plot model predictions
 
-tiff("GLMM Adjusted Data.tiff", width = 18, height = 15, units = "cm",
+tiff("GIT Adjusted Data.tiff", width = 18, height = 8, units = "cm",
      res = 500)
 
 set.seed(242)
 
-ggplot(GLM2_pred) +
-  geom_ribbon(data = GLM2_sim,
+ggplot(GIT_mod_pred) +
+  geom_ribbon(data = GIT_mod_sim,
               aes(x = nominal_MPs,
                   ymin = conf.low,
                   ymax = conf.high),
@@ -821,7 +686,7 @@ ggplot(GLM2_pred) +
   geom_line(aes(x = nominal_MPs,
                 y = predicted,
                 colour = polymer)) +
-  geom_point(data = fish_full_summary2,
+  geom_point(data = GITs,
              aes(x = nominal_MPs,
                  y = adjusted_count),
              colour = "red",
@@ -830,7 +695,7 @@ ggplot(GLM2_pred) +
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
-  geom_segment(data = fish_full_summary2,
+  geom_segment(data = GITs,
                aes(x = nominal_MPs,
                    y = count,
                    yend = adjusted_count),
@@ -840,7 +705,7 @@ ggplot(GLM2_pred) +
                                           seed = 123),
                alpha = 0.5,
                size = 0.5) +
-  geom_point(data = fish_full_summary2,
+  geom_point(data = GITs,
              aes(x = nominal_MPs,
                  y = count,
                  fill = polymer,),
@@ -850,7 +715,7 @@ ggplot(GLM2_pred) +
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
-  facet_grid(organ ~ polymer,
+  facet_grid(. ~ polymer,
              scales = "free_y") +
   scale_fill_manual(values = c("pink",
                                "yellow",
@@ -867,7 +732,7 @@ ggplot(GLM2_pred) +
                      trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
   labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
-       y = expression(paste("Microplastics "*individual^-1))) +
+       y = expression(paste("Microplastics "*GIT^-1))) +
   theme1 +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -875,37 +740,238 @@ dev.off()
 
 ###### Inference ######
 
-coef(predict_response(GLM2.6, 
-                      terms = reference_grid))
+predict_response(GIT_mod5, terms = reference_grid)
 
+###### livers ####
 
-##### Compare the first two models #####
+# Poisson, no interactions
 
-# Compare inference from the two models
+liver_mod1 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral) + offset(log(liver_weight)),
+          family = poisson(link = "log"),
+          data = livers)
 
-GLM1.4_pred$model <- "Model 1"
-GLM2_pred$model <- "Model 2"
+plot(simulateResiduals(liver_mod1))  # pass
 
-both_models <- rbind(GLM1.4_pred, GLM2_pred)
+summary(liver_mod1)
 
-ggplot(both_models) +
-  geom_errorbar(aes(x = as.factor(nominal_MPs),
-                    ymin = conf.low,
-                    ymax = conf.high,
-                    colour = "polymer"),
-                position = position_dodge2()) +
-  geom_point(aes(x = as.factor(nominal_MPs),
-                 y = predicted,
-                 fill = model),
+liver_mod1.1 <-
+  glmmTMB(adjusted_count ~ offset(log(liver_weight)),
+          family = poisson(link = "log"),
+          data = livers)
+
+anova(liver_mod1, liver_mod1.1)  # chi2 = 9.20, p = 0.10
+
+liver_mod_pred <- 
+  as.data.frame(predict_response(liver_mod1, 
+                                 terms = reference_grid,
+                                 condition = c(liver_weight = 
+                                                 mean(livers$liver_weight))),
+                terms_to_colnames = TRUE)
+
+liver_mod_sim <- 
+  as.data.frame(predict_response(liver_mod1, 
+                                 terms = reference_grid,
+                                 type = "simulate",
+                                 nsim = 1000,
+                                 condition = c(liver_weight =
+                                                 mean(livers$liver_weight))),
+                terms_to_colnames = TRUE)
+
+# Plot model predictions
+
+tiff("Livers Adjusted Data.tiff", width = 18, height = 8, units = "cm",
+     res = 500)
+
+set.seed(242)
+
+ggplot(liver_mod_pred) +
+  geom_ribbon(data = liver_mod_sim,
+              aes(x = nominal_MPs,
+                  ymin = conf.low / mean(livers$liver_weight),
+                  ymax = conf.high / mean(livers$liver_weight)),
+              alpha = 0.4,
+              fill = "grey") +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low / mean(livers$liver_weight),
+                  ymax = conf.high / mean(livers$liver_weight),
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted /  mean(livers$liver_weight),
+                colour = polymer)) +
+  geom_point(data = livers,
+             aes(x = nominal_MPs,
+                 y = adjusted_count / liver_weight),
+             colour = "red",
+             size = 1.5,
+             alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  geom_segment(data = livers,
+               aes(x = nominal_MPs,
+                   y = count / liver_weight,
+                   yend = adjusted_count / liver_weight),
+               colour = "red",
+               position = position_jitter(height = 0,
+                                          width = 0.1,
+                                          seed = 123),
+               alpha = 0.5,
+               size = 0.5) +
+  geom_point(data = livers,
+             aes(x = nominal_MPs,
+                 y = count / liver_weight,
+                 fill = polymer,),
              shape = 21,
-             position = position_dodge2(width = 0.9)) +
-  facet_wrap(polymer ~ organ,
+             size = 1.5,
+             alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  facet_grid(. ~ polymer,
              scales = "free_y") +
-  scale_fill_manual(values = c("purple4", "red")) +
-  scale_colour_manual(values = c("purple4", "red")) +
-  labs(x = "Nominal MPs per L",
-       y = "Predicted # MPs") +
-  theme_bw()
+  scale_fill_manual(values = c("pink",
+                               "yellow",
+                               "blue"),
+                    name = "") +
+  scale_colour_manual(values = c("pink4",
+                                 "yellow4",
+                                 "blue4"),
+                      name = "") +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(fish_full_summary$nominal_MPs),
+                     expand = c(0.02, 0)) +
+  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
+       y = expression(paste("Microplastics "*g^-1))) +
+  theme1 +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+###### Inference ######
+
+predict_response(liver_mod1, terms = reference_grid,
+                 condition = c(liver_weight =
+                                 mean(livers$liver_weight)))
+
+###### Muscle ####
+
+# Poisson, no interactions
+
+muscle_mod1 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral) + offset(log(fillet_weight)),
+          family = poisson(link = "log"),
+          data = muscle)
+
+plot(simulateResiduals(muscle_mod1))  # pass
+
+summary(muscle_mod1)
+
+muscle_mod1.1 <-
+  glmmTMB(adjusted_count ~ offset(log(fillet_weight)),
+          family = poisson(link = "log"),
+          data = muscle)
+
+anova(muscle_mod1, muscle_mod1.1)  # chi2 = 9.35, p = 0.10
+
+muscle_mod_pred <- 
+  as.data.frame(predict_response(muscle_mod1, 
+                                 terms = reference_grid,
+                                 condition = c(fillet_weight = 
+                                                 mean(muscle$fillet_weight))),
+                terms_to_colnames = TRUE)
+
+muscle_mod_sim <- 
+  as.data.frame(predict_response(muscle_mod1, 
+                                 terms = reference_grid,
+                                 type = "simulate",
+                                 nsim = 1000,
+                                 condition = c(fillet_weight = 
+                                                 mean(muscle$fillet_weight))),
+                terms_to_colnames = TRUE)
+
+# Plot model predictions
+
+tiff("Muscle Adjusted Data.tiff", width = 18, height = 8, units = "cm",
+     res = 500)
+
+set.seed(242)
+
+ggplot(muscle_mod_pred) +
+  geom_ribbon(data = muscle_mod_sim,
+              aes(x = nominal_MPs,
+                  ymin = conf.low / mean(muscle$fillet_weight),
+                  ymax = conf.high / mean(muscle$fillet_weight)),
+              alpha = 0.4,
+              fill = "grey") +
+  geom_ribbon(aes(x = nominal_MPs,
+                  ymin = conf.low / mean(muscle$fillet_weight),
+                  ymax = conf.high / mean(muscle$fillet_weight),
+                  fill = polymer),
+              alpha = 0.3) +
+  geom_line(aes(x = nominal_MPs,
+                y = predicted / mean(muscle$fillet_weight),
+                colour = polymer)) +
+  geom_point(data = muscle,
+             aes(x = nominal_MPs,
+                 y = adjusted_count / fillet_weight),
+             colour = "red",
+             size = 1.5,
+             alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  geom_segment(data = muscle,
+               aes(x = nominal_MPs,
+                   y = count / fillet_weight,
+                   yend = adjusted_count / fillet_weight),
+               colour = "red",
+               position = position_jitter(height = 0,
+                                          width = 0.1,
+                                          seed = 123),
+               alpha = 0.5,
+               size = 0.5) +
+  geom_point(data = muscle,
+             aes(x = nominal_MPs,
+                 y = count / fillet_weight,
+                 fill = polymer,),
+             shape = 21,
+             size = 1.5,
+             alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  facet_grid(. ~ polymer,
+             scales = "free_y") +
+  scale_fill_manual(values = c("pink",
+                               "yellow",
+                               "blue"),
+                    name = "") +
+  scale_colour_manual(values = c("pink4",
+                                 "yellow4",
+                                 "blue4"),
+                      name = "") +
+  scale_x_continuous(trans = "log1p",
+                     breaks = unique(fish_full_summary$nominal_MPs),
+                     expand = c(0.02, 0)) +
+  scale_y_continuous(expand = c(0.02, 0),
+                     trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
+       y = expression(paste("Microplastics "*g^-1))) +
+  theme1 +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+###### Inference ######
+
+predict_response(muscle_mod1, terms = reference_grid,
+                 condition = c(fillet_weight =
+                                 mean(muscle$fillet_weight)))
 
 #### Explore relationships among organs ####
 
@@ -922,7 +988,8 @@ fish_wide <-
 
 organmod1 <- glmmTMB(Liver ~ 
                        log(GIT + 1) * polymer +
-                       (1 | corral),
+                       (1 | corral) +
+                       log(total_length),
                      family = poisson(link = "log"),
                      data = fish_wide)
 
@@ -930,21 +997,39 @@ plot(simulateResiduals(organmod1, integerResponse = TRUE))
 
 plotResiduals(organmod1, fish_wide$total_length)
 
-summary(organmod1)  # not sig.
+summary(organmod1)
 
-##### GIT and fillet #####
-
-organmod2 <- glmmTMB(Fillet ~ 
-                       log(GIT + 1) * polymer +
+organmod2 <- glmmTMB(Liver ~ 
                        (1 | corral),
                      family = poisson(link = "log"),
                      data = fish_wide)
 
 plot(simulateResiduals(organmod2, integerResponse = TRUE))
 
+anova(organmod1, organmod2) # None of the terms had an effect
+
+##### GIT and fillet #####
+
+organmod3 <- glmmTMB(Fillet ~ 
+                       log(GIT + 1) * polymer + log(total_length) +
+                       (1 | corral),
+                     family = poisson(link = "log"),
+                     data = fish_wide)
+
+plot(simulateResiduals(organmod3, integerResponse = TRUE))
+
 plotResiduals(organmod2, fish_wide$total_length)
 
-summary(organmod2)  # not sig
+summary(organmod2)
+
+organmod4 <- glmmTMB(Fillet ~ (1 | corral),
+                     family = poisson(link = "log"),
+                     data = fish_wide)
+
+anova(organmod3, organmod4)  # not sig.
+
+plot(simulateResiduals(organmod4, integerResponse = TRUE))
+
 
 #### Explore particle size and shape ####
 
@@ -964,15 +1049,17 @@ summary(length.mod1)
 
 plot(simulateResiduals(length.mod1))
 
-test_predictions(length.mod1, terms = c("organ"))  # Nothing sig.
+length.mod2 <- lm(log(length) ~ 1, data = measurements)
+
+anova(length.mod1, length.mod2)  # not sig.
 
 width.mod1 <- lm(log(width) ~ organ, data = measurements)
 summary(width.mod1)
 
 plot(simulateResiduals(width.mod1))
 
-test_predictions(width.mod1, terms = c("organ"))  
-# liver particles narrower than GIT 
+width.mod2 <- lm(log(width) ~ 1, data = measurements)
+anova(width.mod1, width.mod2)  # sig.
 
 length.predict <- 
   as.data.frame(predict_response(length.mod1,
@@ -990,6 +1077,9 @@ size.predict <-
          width.conf.low = width.predict$conf.low,
          width.conf.high= width.predict$conf.high)
 
+plot(predict_response(width.mod1,
+                      terms = "organ"))
+
 # Plot
 
 tiff("Shape Plot.tiff", width = 18, height = 6, units = "cm",
@@ -1000,7 +1090,7 @@ ggplot(measurements) +
                  y = length * 1000,
                  fill = polymer),
              shape = 21,
-             size = 0.75) +
+             size = 1) +
   geom_point(data = size.predict,
              aes(x = width.predicted * 1000,
                  y = predicted * 1000),
