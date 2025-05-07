@@ -514,7 +514,7 @@ ggplot(SaR_summary,
            fill = polymer)) +
   geom_col() +
   facet_wrap(~ polymer) +
-  scale_fill_manual(values = c("blue", "yellow", "pink")) +
+  scale_fill_manual(values = c("yellow", "blue", "pink")) +
   theme_bw()
 
 # Calculate means
@@ -557,8 +557,6 @@ reference_grid <-
 ## Modified to use separate models for each organ
 
 ###### Corrected data #####
-
-levels(SaR_means$polymer) <- c("PET", "PE", "PS")
 
 fish_full_summary2 <-
   fish_full_summary %>% 
@@ -643,22 +641,34 @@ GIT_mod5 <-
           family = nbinom2(link = "log"),
           data = GITs)
 
-plot(simulateResiduals(GIT_mod5))  # pass
+plot(simulateResiduals(GIT_mod5))  # fail
 
-summary(GIT_mod5)
+# ZIP, 2-way interaction
 
-GIT_mod5.1 <-
-  glmmTMB(adjusted_count ~ 1,
-          family = nbinom2(link = "log"),
+GIT_mod6 <-
+  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
+          family = poisson(link = "log"),
+          ziformula = ~ 1,
           data = GITs)
-anova(GIT_mod5, GIT_mod5.1)  # chi2 = 73.20, p < 0.001
+
+plot(simulateResiduals(GIT_mod6))  # pass
+
+summary(GIT_mod6)
+
+GIT_mod6.1 <-
+  glmmTMB(adjusted_count ~ 1,
+          family = poisson(link = "log"),
+          ziformula = ~ 1,
+          data = GITs)
+anova(GIT_mod6, GIT_mod6.1)  # chi2 = 4779, p < 0.001
 
 GIT_mod_pred <- 
-  as.data.frame(predict_response(GIT_mod5, 
+  as.data.frame(predict_response(GIT_mod6, 
                                  terms = reference_grid),
                 terms_to_colnames = TRUE)
 GIT_mod_sim <- 
-  as.data.frame(predict_response(GIT_mod5, 
+  as.data.frame(predict_response(GIT_mod6, 
                                  terms = reference_grid,
                                  type = "simulate",
                                  nsim = 1000),
@@ -704,7 +714,7 @@ ggplot(GIT_mod_pred) +
                                           width = 0.1,
                                           seed = 123),
                alpha = 0.5,
-               size = 0.5) +
+               linewidth = 0.5) +
   geom_point(data = GITs,
              aes(x = nominal_MPs,
                  y = count,
@@ -740,7 +750,9 @@ dev.off()
 
 ###### Inference ######
 
-predict_response(GIT_mod5, terms = reference_grid)
+predict_response(GIT_mod6, terms = reference_grid)
+
+predict_response(GIT_mod6, terms = c("total_length", "nominal_MPs"))
 
 ###### livers ####
 
