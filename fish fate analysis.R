@@ -1010,7 +1010,7 @@ anova(organmod1, organmod2) # None of the terms had an effect
 
 ##### GIT and fillet #####
 
-organmod3 <- glmmTMB(Fillet ~ 
+organmod3 <- glmmTMB(Muscle ~ 
                        log(GIT + 1) * polymer + log(total_length) +
                        (1 | corral),
                      family = poisson(link = "log"),
@@ -1022,7 +1022,7 @@ plotResiduals(organmod2, fish_wide$total_length)
 
 summary(organmod2)
 
-organmod4 <- glmmTMB(Fillet ~ (1 | corral),
+organmod4 <- glmmTMB(Muscle ~ (1 | corral),
                      family = poisson(link = "log"),
                      data = fish_wide)
 
