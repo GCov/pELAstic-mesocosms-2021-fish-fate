@@ -699,15 +699,6 @@ ggplot(GIT_mod_pred) +
   geom_line(aes(x = nominal_MPs,
                 y = predicted,
                 colour = polymer)) +
-  geom_point(data = GITs,
-             aes(x = nominal_MPs,
-                 y = adjusted_count),
-             colour = "red",
-             size = 1.5,
-             alpha = 0.5,
-             position = position_jitter(height = 0,
-                                        width = 0.1,
-                                        seed = 123)) +
   geom_segment(data = GITs,
                aes(x = nominal_MPs,
                    y = count,
@@ -720,11 +711,19 @@ ggplot(GIT_mod_pred) +
                linewidth = 0.5) +
   geom_point(data = GITs,
              aes(x = nominal_MPs,
-                 y = count,
-                 fill = polymer,),
-             shape = 21,
+                 y = count,),
+             colour = "red",
              size = 1.5,
              alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  geom_point(data = GITs,
+             aes(x = nominal_MPs,
+                 y = adjusted_count,
+                 fill = polymer),
+             shape = 21,
+             size = 1.5,
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
@@ -757,7 +756,7 @@ predict_response(GIT_mod6, terms = reference_grid)
 
 GIT_length_predict <- 
   as.data.frame(predict_response(GIT_mod6, 
-                                 terms = c("nominal_MPs [29240]", 
+                                 terms = c("nominal_MPs [6, 100, 1710, 29240]", 
                                            "polymer",
                                            "total_length [6:11]")),
                 terms_to_colnames = TRUE)
@@ -768,7 +767,7 @@ GIT_length_predict$total_length <-
 GIT_length_predict$polymer <- 
   factor(GIT_length_predict$polymer, levels = c("PS", "PE", "PET"))
 
-tiff("GIT Total Length Predictions.tiff", width = 18, height = 8, units = "cm",
+tiff("GIT Total Length Predictions.tiff", width = 18, height = 12, units = "cm",
      res = 500)
 
 set.seed(242)
@@ -782,7 +781,10 @@ ggplot(GIT_length_predict) +
   geom_line(aes(x = total_length,
                 y = predicted,
                 colour = polymer)) +
-  geom_point(data = GITs %>% filter(nominal_MPs == 29240),
+  geom_point(data = GITs %>% filter(nominal_MPs == 6 |
+                                      nominal_MPs == 100 |
+                                      nominal_MPs == 1710 |
+                                      nominal_MPs== 29240),
              aes(x = total_length,
                  y = adjusted_count),
              colour = "red",
@@ -791,7 +793,10 @@ ggplot(GIT_length_predict) +
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
-  geom_segment(data = GITs %>% filter(nominal_MPs == 29240),
+  geom_segment(data = GITs %>% filter(nominal_MPs == 6 |
+                                        nominal_MPs == 100 |
+                                        nominal_MPs == 1710 |
+                                        nominal_MPs== 29240),
                aes(x = total_length,
                    y = count,
                    yend = adjusted_count),
@@ -801,7 +806,10 @@ ggplot(GIT_length_predict) +
                                           seed = 123),
                alpha = 0.5,
                linewidth = 0.5) +
-  geom_point(data = GITs %>% filter(nominal_MPs == 29240),
+  geom_point(data = GITs %>% filter(nominal_MPs == 6 |
+                                      nominal_MPs == 100 |
+                                      nominal_MPs == 1710 |
+                                      nominal_MPs== 29240),
              aes(x = total_length,
                  y = count,
                  fill = polymer),
@@ -811,7 +819,7 @@ ggplot(GIT_length_predict) +
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
-  facet_grid( ~ polymer,
+  facet_grid(polymer ~ nominal_MPs,
              scales = "free_y") +
   scale_fill_manual(values = c("pink",
                                "yellow",
@@ -872,25 +880,21 @@ liver_mod_sim <-
 
 # Plot model predictions
 
+liver_mod_pred$polymer <- factor(liver_mod_pred$polymer,
+                                 levels = c("PS", "PE", "PET"))
+livers$polymer <- factor(livers$polymer,
+                         levels = c("PS", "PE", "PET"))
+
 tiff("Livers Adjusted Data.tiff", width = 18, height = 8, units = "cm",
      res = 500)
 
 set.seed(242)
 
-ggplot(liver_mod_pred) +
-  geom_point(data = livers,
-             aes(x = nominal_MPs,
-                 y = adjusted_count / liver_weight),
-             colour = "red",
-             size = 1.5,
-             alpha = 0.5,
-             position = position_jitter(height = 0,
-                                        width = 0.1,
-                                        seed = 123)) +
+ggplot(livers) +
   geom_segment(data = livers,
                aes(x = nominal_MPs,
-                   y = count / liver_weight,
-                   yend = adjusted_count / liver_weight),
+                   y = count,
+                   yend = adjusted_count),
                colour = "red",
                position = position_jitter(height = 0,
                                           width = 0.1,
@@ -899,11 +903,19 @@ ggplot(liver_mod_pred) +
                linewidth = 0.5) +
   geom_point(data = livers,
              aes(x = nominal_MPs,
-                 y = count / liver_weight,
-                 fill = polymer,),
-             shape = 21,
+                 y = count,),
+             colour = "red",
              size = 1.5,
              alpha = 0.5,
+             position = position_jitter(height = 0,
+                                        width = 0.1,
+                                        seed = 123)) +
+  geom_point(data = livers,
+             aes(x = nominal_MPs,
+                 y = adjusted_count,
+                 fill = polymer),
+             shape = 21,
+             size = 1.5,
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
@@ -987,7 +999,7 @@ tiff("Muscle Adjusted Data.tiff", width = 18, height = 8, units = "cm",
 
 set.seed(242)
 
-ggplot(muscle_mod_pred) +
+ggplot(muscle_mod_pred) + 
   geom_ribbon(data = muscle_mod_sim,
               aes(x = nominal_MPs,
                   ymin = conf.low / mean(muscle$fillet_weight),
@@ -1002,32 +1014,32 @@ ggplot(muscle_mod_pred) +
   geom_line(aes(x = nominal_MPs,
                 y = predicted / mean(muscle$fillet_weight),
                 colour = polymer)) +
+  
+  geom_segment(data = muscle,
+               aes(x = nominal_MPs,
+                   y = count,
+                   yend = adjusted_count),
+               colour = "red",
+               position = position_jitter(height = 0,
+                                          width = 0.1,
+                                          seed = 123),
+               alpha = 0.5,
+               linewidth = 0.5) +
   geom_point(data = muscle,
              aes(x = nominal_MPs,
-                 y = adjusted_count / fillet_weight),
+                 y = count,),
              colour = "red",
              size = 1.5,
              alpha = 0.5,
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
-  geom_segment(data = muscle,
-               aes(x = nominal_MPs,
-                   y = count / fillet_weight,
-                   yend = adjusted_count / fillet_weight),
-               colour = "red",
-               position = position_jitter(height = 0,
-                                          width = 0.1,
-                                          seed = 123),
-               alpha = 0.5,
-               size = 0.5) +
   geom_point(data = muscle,
              aes(x = nominal_MPs,
-                 y = count / fillet_weight,
-                 fill = polymer,),
+                 y = adjusted_count,
+                 fill = polymer),
              shape = 21,
              size = 1.5,
-             alpha = 0.5,
              position = position_jitter(height = 0,
                                         width = 0.1,
                                         seed = 123)) +
@@ -1066,54 +1078,90 @@ predict_response(muscle_mod1, terms = reference_grid,
 
 fish_wide <-
   fish_full_summary2 %>% 
-  select(-dummy, -count, -organ_weight, -GIT_weight, -fillet_weight,
-         -liver_weight, -gill_weight, -log_organ_weight) %>% 
+  select(-dummy, -count, -organ_weight, -GIT_weight, -gill_weight, 
+         -log_organ_weight) %>% 
   pivot_wider(names_from = c(organ),
               values_from = adjusted_count)
 
 ##### GIT and liver #####
 
-organmod1 <- glmmTMB(Liver ~ 
-                       log(GIT + 1) * polymer +
-                       (1 | corral) +
-                       log(total_length),
-                     family = poisson(link = "log"),
-                     data = fish_wide)
+ggplot(fish_wide) +
+  geom_jitter(aes(x = GIT,
+                  y = Liver / liver_weight,
+                  fill = polymer),
+              shape = 21,
+              height = 0,
+              width = 0.1) +
+  facet_grid(.~polymer) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  scale_y_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10)) +
+  scale_fill_manual(values = c("yellow", "blue", "pink")) +
+  theme1  # Data too sparse to model
 
-plot(simulateResiduals(organmod1, integerResponse = TRUE))
+liverGITmod1 <- glmmTMB(Liver ~ log(GIT + 1) * polymer + 
+                          offset(log(fillet_weight)) +
+                          (1 | corral),
+                        family = poisson(link = "log"),
+                        data = fish_wide)
 
-plotResiduals(organmod1, fish_wide$total_length)
+plot(simulateResiduals(liverGITmod1))
 
-summary(organmod1)
+summary(liverGITmod1)
 
-organmod2 <- glmmTMB(Liver ~ 
-                       (1 | corral),
-                     family = poisson(link = "log"),
-                     data = fish_wide)
+liverGITmod2 <- glmmTMB(Liver ~ polymer + 
+                          offset(log(fillet_weight)) +
+                          (1 | corral),
+                        family = poisson(link = "log"),
+                        data = fish_wide)
 
-plot(simulateResiduals(organmod2, integerResponse = TRUE))
+anova(liverGITmod1, liverGITmod2)
 
-anova(organmod1, organmod2) # None of the terms had an effect
+test_predictions(liverGITmod1, terms = c("GIT"))
 
-##### GIT and fillet #####
+predict_response(liverGITmod1, terms = c("GIT"))
 
-organmod3 <- glmmTMB(Muscle ~ 
-                       log(GIT + 1) * polymer + log(total_length) +
-                       (1 | corral),
-                     family = poisson(link = "log"),
-                     data = fish_wide)
+##### GIT and muscle #####
 
-plot(simulateResiduals(organmod3, integerResponse = TRUE))
+ggplot(fish_wide) +
+  geom_jitter(aes(x = GIT,
+                  y = Muscle / liver_weight,
+                  fill = polymer),
+              shape = 21,
+              height = 0,
+              width = 0.1) +
+  facet_grid(.~polymer) +
+  scale_x_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10, 100, 1000)) +
+  scale_y_continuous(trans = "log1p",
+                     breaks = c(0, 1, 10)) +
+  scale_fill_manual(values = c("yellow", "blue", "pink")) +
+  theme1  # Data too sparse to model
 
-plotResiduals(organmod2, fish_wide$total_length)
+muscleGITmod1 <- glmmTMB(Muscle ~ 
+                           log(GIT + 1) * polymer +
+                          offset(log(fillet_weight)) +
+                           (1 | corral), 
+                         family = poisson(link = "log"), 
+                         data = fish_wide)
 
-summary(organmod2)
+plot(simulateResiduals(muscleGITmod1, integerResponse = TRUE))
 
-organmod4 <- glmmTMB(Muscle ~ (1 | corral),
-                     family = poisson(link = "log"),
-                     data = fish_wide)
+summary(muscleGITmod1)
 
-anova(organmod3, organmod4)  # not sig.
+test_predictions(muscleGITmod1, terms = c("GIT", "polymer"))
+
+predict_response(muscleGITmod1, terms = c("GIT", "polymer"), 
+                 condition = c(fillet_weight = mean(fish_wide$fillet_weight)))
+
+muscleGITmod2 <- glmmTMB(Muscle ~ polymer +
+                           offset(log(fillet_weight)) +
+                           (1 | corral),
+                         family = poisson(link = "log"), 
+                         data = fish_wide)
+
+anova(muscleGITmod1, muscleGITmod2)  # marginally signficant
 
 plot(simulateResiduals(organmod4, integerResponse = TRUE))
 
