@@ -220,21 +220,30 @@ CMtest <-
   as.data.frame(confusionMatrix(test$predict,
                                 test$cat)$table)
 
+tiff("Spectroscopy Test Confusion Matrix.tiff", 
+     width = 12, height = 8, units = "cm",
+     res = 500)
+
 ggplot(CMtest, 
        aes(x = Reference, y = Prediction, fill = Freq)) +
   geom_tile() +
-  geom_text(aes(label = Freq), color = 'red') +
+  geom_text(aes(label = Freq), 
+            color = 'red',
+            size.unit = "pt",
+            size = 8) +
   scale_fill_viridis_c(option = "mako",
                        direction = -1) +
   labs(x = "Data",
        y = "Prediction") +
-  theme_minimal()
+  theme1
+
+dev.off()
 
 # This also looks quite good!
 
 varImpPlot(rf2)  # count_ID most important
 
-`# This seems OK so refit the model to the full data set
+# This seems OK so refit the model to the full data set
 
 set.seed(424)
 
@@ -657,6 +666,15 @@ GIT_mod6 <-
 
 plot(simulateResiduals(GIT_mod6))  # pass
 
+GIT_mod7 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            log(total_length) + (1 | corral),
+          family = poisson(link = "log"),
+          ziformula = ~ 1,
+          data = GITs)
+
+anova(GIT_mod6, GIT_mod7)
+
 summary(GIT_mod6)
 
 GIT_mod6.1 <-
@@ -843,26 +861,43 @@ dev.off()
 # Poisson, no interactions
 
 liver_mod1 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
+            log(total_length) +
             (1 | corral) + offset(log(liver_weight)),
           family = poisson(link = "log"),
-          data = livers)  # had to remove total_length
+          data = livers)
 
 plot(simulateResiduals(liver_mod1))  # pass
 
-summary(liver_mod1)
+liver_mod2 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+            total_length +
+            (1 | corral) + offset(log(liver_weight)),
+          family = poisson(link = "log"),
+          data = livers)
 
-sqrt(sum((livers$adjusted_count - predict(liver_mod1))^2 / nrow(livers)))
+summary(liver_mod2)
 
-liver_mod1.1 <-
+liver_mod3 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) +
+            (1 | corral) + offset(log(liver_weight)),
+          family = poisson(link = "log"),
+          data = livers)
+
+anova(liver_mod1, liver_mod2)
+anova(liver_mod2, liver_mod3)  # liver_mod2 is best
+
+plot(simulateResiduals(liver_mod2))
+
+liver_mod2.1 <-
   glmmTMB(adjusted_count ~ offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
 
-anova(liver_mod1, liver_mod1.1)  # chi2 = 7.2972, p = 0.121
+anova(liver_mod2, liver_mod2.1)  # chi2 = 11.214, p = 0.04729
 
 liver_mod_pred <- 
-  as.data.frame(predict_response(liver_mod1, 
+  as.data.frame(predict_response(liver_mod2, 
                                  terms = reference_grid,
                                  condition = c(liver_weight = 
                                                  mean(livers$liver_weight)),
@@ -870,7 +905,7 @@ liver_mod_pred <-
                 terms_to_colnames = TRUE)
 
 liver_mod_sim <- 
-  as.data.frame(predict_response(liver_mod1, 
+  as.data.frame(predict_response(liver_mod2, 
                                  terms = reference_grid,
                                  type = "simulate",
                                  nsim = 1000,
@@ -890,7 +925,7 @@ tiff("Livers Adjusted Data.tiff", width = 18, height = 8, units = "cm",
 
 set.seed(242)
 
-ggplot(livers) +
+ggplot() +
   geom_segment(data = livers,
                aes(x = nominal_MPs,
                    y = count,
@@ -1014,7 +1049,6 @@ ggplot(muscle_mod_pred) +
   geom_line(aes(x = nominal_MPs,
                 y = predicted / mean(muscle$fillet_weight),
                 colour = polymer)) +
-  
   geom_segment(data = muscle,
                aes(x = nominal_MPs,
                    y = count,
@@ -1085,23 +1119,35 @@ fish_wide <-
 
 ##### GIT and liver #####
 
+tiff("Liver and GIT Comparison.tiff", width = 18, height = 6, units = "cm",
+     res = 500)
+
+set.seed(242)
+
 ggplot(fish_wide) +
   geom_jitter(aes(x = GIT,
                   y = Liver / liver_weight,
                   fill = polymer),
               shape = 21,
               height = 0,
-              width = 0.1) +
+              width = 0.1,
+              alpha = 0.75) +
   facet_grid(.~polymer) +
   scale_x_continuous(trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
   scale_y_continuous(trans = "log1p",
                      breaks = c(0, 1, 10)) +
-  scale_fill_manual(values = c("yellow", "blue", "pink")) +
-  theme1  # Data too sparse to model
+  scale_fill_manual(values = c("yellow", "blue", "pink"),
+                    name = "Polymer") +
+  labs(x = expression(paste("Microplastics "*individual^-1~"in GIT samples")),
+       y = expression(paste("Microplastics "*g^-1~"in liver samples"))) +
+  theme1
+
+dev.off()
 
 liverGITmod1 <- glmmTMB(Liver ~ log(GIT + 1) * polymer + 
-                          offset(log(fillet_weight)) +
+                          log(total_length) +
+                          offset(log(liver_weight)) +
                           (1 | corral),
                         family = poisson(link = "log"),
                         data = fish_wide)
@@ -1110,7 +1156,8 @@ plot(simulateResiduals(liverGITmod1))
 
 summary(liverGITmod1)
 
-liverGITmod2 <- glmmTMB(Liver ~ polymer + 
+liverGITmod2 <- glmmTMB(Liver ~ polymer +  
+                          log(total_length) +
                           offset(log(fillet_weight)) +
                           (1 | corral),
                         family = poisson(link = "log"),
@@ -1118,29 +1165,42 @@ liverGITmod2 <- glmmTMB(Liver ~ polymer +
 
 anova(liverGITmod1, liverGITmod2)
 
-test_predictions(liverGITmod1, terms = c("GIT"))
+test_predictions(liverGITmod1, terms = c("GIT"), by = "polymer")
 
-predict_response(liverGITmod1, terms = c("GIT"))
+predict_response(liverGITmod1, terms = c("GIT", "polymer"), 
+                 condition = c(liver_weight = mean(livers$liver_weight)))
 
 ##### GIT and muscle #####
 
+tiff("Muscle and GIT Comparison.tiff", width = 18, height = 6, units = "cm",
+     res = 500)
+
+set.seed(242)
+
 ggplot(fish_wide) +
   geom_jitter(aes(x = GIT,
-                  y = Muscle / liver_weight,
+                  y = Muscle / fillet_weight,
                   fill = polymer),
               shape = 21,
               height = 0,
-              width = 0.1) +
+              width = 0.1,
+              alpha = 0.75) +
   facet_grid(.~polymer) +
   scale_x_continuous(trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
   scale_y_continuous(trans = "log1p",
                      breaks = c(0, 1, 10)) +
-  scale_fill_manual(values = c("yellow", "blue", "pink")) +
-  theme1  # Data too sparse to model
+  scale_fill_manual(values = c("yellow", "blue", "pink"),
+                    name = "Polymer") +
+  labs(x = expression(paste("Microplastics "*individual^-1~"in GIT samples")),
+       y = expression(paste("Microplastics "*g^-1~"in muscle samples"))) +
+  theme1
+
+dev.off()
 
 muscleGITmod1 <- glmmTMB(Muscle ~ 
-                           log(GIT + 1) * polymer +
+                           log(GIT + 1) * polymer + 
+                           log(total_length) +
                           offset(log(fillet_weight)) +
                            (1 | corral), 
                          family = poisson(link = "log"), 
@@ -1214,6 +1274,9 @@ size.predict <-
 
 plot(predict_response(width.mod1,
                       terms = "organ"))
+
+test_predictions(width.mod1,
+                 terms = "organ")
 
 # Plot
 
