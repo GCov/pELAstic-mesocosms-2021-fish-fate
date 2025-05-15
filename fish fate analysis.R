@@ -552,14 +552,23 @@ for(i in 1:nrow(fish_full_summary)) {
                   fish_full_summary$liver_weight[i]))
 }
 
+
+# Scale nominal MP concentration
+
 fish_full_summary <-
   fish_full_summary %>% 
-  mutate(log_organ_weight = log(organ_weight))
+  mutate(st_MPs = log(nominal_MPs + 6) / max(log(nominal_MPs + 6)))
 
 # grid for prediction
 reference_grid <-
-  expand.grid(nominal_MPs = unique(fish_full_summary$nominal_MPs),
+  expand.grid(st_MPs = unique(fish_full_summary$st_MPs),
               polymer = unique(fish_full_summary$polymer))
+
+# summarize total particles
+
+fish_full_summary %>% 
+  group_by(organ, corral, nominal_MPs) %>% 
+  summarize(total_count = sum(adjusted_count))
 
 ##### GLMM with addition/subtraction #####
 
@@ -576,6 +585,16 @@ fish_full_summary2 <-
   mutate(adjusted_count = floor((count / mean_prob_recovery) - mean_blanks))
 
 fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
+
+# summarize total particles
+
+total_counts <-
+  fish_full_summary2 %>% 
+  group_by(organ, corral, nominal_MPs, fish_ID) %>% 
+  summarize(total_count = sum(adjusted_count)) %>% 
+  group_by(organ, corral, nominal_MPs) %>% 
+  summarize(mean = mean(total_count),
+            sd = sd(total_count))
 
 # Compare original and adjusted data
 
@@ -608,66 +627,66 @@ muscle <-
 # Poisson, no interactions
 
 GIT_mod1 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer + st_MPs + 
+            scale(log(total_length)) + (1 | corral),
                 family = poisson(link = "log"),
                 data = GITs)
 
-plot(simulateResiduals(GIT_mod1))  # fail
+plot(simulateResiduals(GIT_mod1, integerResponse = TRUE))  # fail
 
 # Poisson, 2-way interaction
 
 GIT_mod2 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs + 
+            scale(log(total_length)) + (1 | corral),
           family = poisson(link = "log"),
           data = GITs)
 
-plot(simulateResiduals(GIT_mod2))  # fail
+plot(simulateResiduals(GIT_mod2, integerResponse = TRUE))  # fail
 
 # Negative binomial, no interactions
 
 GIT_mod3 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer + st_MPs + 
+            scale(log(total_length)) + (1 | corral),
           family = nbinom2(link = "log"),
           data = GITs)
 
-plot(simulateResiduals(GIT_mod3))  # fail
+plot(simulateResiduals(GIT_mod3, integerResponse = TRUE))  # fail
 
 # Negative binomial, 2-way interaction
 
 GIT_mod4 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs + 
+            scale(log(total_length)) + (1 | corral),
           family = nbinom2(link = "log"),
           data = GITs)
 
-plot(simulateResiduals(GIT_mod4))  # fail
+plot(simulateResiduals(GIT_mod4, integerResponse = TRUE))  # fail
 
 # Negative binomial, 3-way interaction
 
 GIT_mod5 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) * 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs * 
+            scale(log(total_length)) + (1 | corral),
           family = nbinom2(link = "log"),
           data = GITs)
 
-plot(simulateResiduals(GIT_mod5))  # fail
+plot(simulateResiduals(GIT_mod5, integerResponse = TRUE))  # fail
 
 # ZIP, 2-way interaction
 
 GIT_mod6 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral),
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs + 
+            scale(log(total_length)) + (1 | corral),
           family = poisson(link = "log"),
           ziformula = ~ 1,
           data = GITs)
 
-plot(simulateResiduals(GIT_mod6))  # pass
+plot(simulateResiduals(GIT_mod6, integerResponse = TRUE))  # pass
 
 GIT_mod7 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
+  glmmTMB(adjusted_count ~ 0 + polymer + st_MPs + 
             log(total_length) + (1 | corral),
           family = poisson(link = "log"),
           ziformula = ~ 1,
@@ -687,13 +706,16 @@ anova(GIT_mod6, GIT_mod6.1)  # chi2 = 4779, p < 0.001
 GIT_mod_pred <- 
   as.data.frame(predict_response(GIT_mod6, 
                                  terms = reference_grid),
-                terms_to_colnames = TRUE)
+                terms_to_colnames = TRUE) %>% 
+  mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
+
 GIT_mod_sim <- 
   as.data.frame(predict_response(GIT_mod6, 
                                  terms = reference_grid,
                                  type = "simulate",
                                  nsim = 1000),
-                terms_to_colnames = TRUE)
+                terms_to_colnames = TRUE) %>% 
+  mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
 # Plot model predictions
 
@@ -770,14 +792,17 @@ dev.off()
 
 ###### Inference ######
 
-predict_response(GIT_mod6, terms = reference_grid)
+print(predict_response(GIT_mod6, terms = reference_grid), n = Inf)
 
 GIT_length_predict <- 
   as.data.frame(predict_response(GIT_mod6, 
-                                 terms = c("nominal_MPs [6, 100, 1710, 29240]", 
+                                 terms = c("st_MPs [0.24, 0.45, 0.72, 1.00]", 
                                            "polymer",
                                            "total_length [6:11]")),
-                terms_to_colnames = TRUE)
+                terms_to_colnames = TRUE) %>% 
+  mutate(nominal_MPs = as.factor(st_MPs))
+
+levels(GIT_length_predict$nominal_MPs) <- c("6", "100", "1710", "29240")
 
 GIT_length_predict$total_length <- 
   as.numeric(as.character(GIT_length_predict$total_length))
@@ -861,8 +886,8 @@ dev.off()
 # Poisson, no interactions
 
 liver_mod1 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-            log(total_length) +
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs + 
+            scale(log(total_length)) +
             (1 | corral) + offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
@@ -870,31 +895,32 @@ liver_mod1 <-
 plot(simulateResiduals(liver_mod1))  # pass
 
 liver_mod2 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
-            total_length +
+  glmmTMB(adjusted_count ~ 0 + polymer + st_MPs + 
+            scale(log(total_length)) +
             (1 | corral) + offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
 
 summary(liver_mod2)
 
+plot(simulateResiduals(liver_mod2)) # pass
+
 liver_mod3 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) +
+  glmmTMB(adjusted_count ~ st_MPs + 
+            scale(log(total_length)) +
             (1 | corral) + offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
 
 anova(liver_mod1, liver_mod2)
-anova(liver_mod2, liver_mod3)  # liver_mod2 is best
+anova(liver_mod2, liver_mod3)  # polymer NS p = 0.111
 
-plot(simulateResiduals(liver_mod2))
-
-liver_mod2.1 <-
+  liver_mod2.1 <-
   glmmTMB(adjusted_count ~ offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
 
-anova(liver_mod2, liver_mod2.1)  # chi2 = 11.214, p = 0.04729
+anova(liver_mod2, liver_mod2.1)  # chi2 = 10.874, p = 0.0539
 
 liver_mod_pred <- 
   as.data.frame(predict_response(liver_mod2, 
@@ -985,8 +1011,8 @@ predict_response(liver_mod1, terms = reference_grid,
 # Poisson, no interactions
 
 muscle_mod1 <-
-  glmmTMB(adjusted_count ~ 0 + polymer + log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral) + offset(log(fillet_weight)),
+  glmmTMB(adjusted_count ~ 0 + polymer + st_MPs + 
+            scale(log(total_length)) + (1 | corral) + offset(log(fillet_weight)),
           family = poisson(link = "log"),
           data = muscle)
 
@@ -995,8 +1021,8 @@ plot(simulateResiduals(muscle_mod1))  # fail
 # Poisson, 2-way interaction
 
 muscle_mod2 <-
-  glmmTMB(adjusted_count ~ 0 + polymer * log(nominal_MPs + 6) + 
-            log(total_length) + (1 | corral) + offset(log(fillet_weight)),
+  glmmTMB(adjusted_count ~ 0 + polymer * st_MPs + 
+            scale(log(total_length)) + (1 | corral) + offset(log(fillet_weight)),
           family = poisson(link = "log"),
           data = muscle)
 
@@ -1004,19 +1030,36 @@ plot(simulateResiduals(muscle_mod2))  # pass
 
 summary(muscle_mod2)
 
-muscle_mod2.1 <-
-  glmmTMB(adjusted_count ~ 1 + offset(log(fillet_weight)),
+muscle_mod3 <-
+  glmmTMB(adjusted_count ~ 0 + st_MPs + 
+            scale(log(total_length)) + (1 | corral) + offset(log(fillet_weight)),
           family = poisson(link = "log"),
           data = muscle)
 
-anova(muscle_mod2, muscle_mod2.1)  # chi2 = 21.322, p = 0.003
+anova(muscle_mod2, muscle_mod3)  # polymer sig. chi2 = 13.682, p = 0.01776
+
+muscle_mod4 <-
+  glmmTMB(adjusted_count ~ 0 + polymer + 
+            scale(log(total_length)) + (1 | corral) + offset(log(fillet_weight)),
+          family = poisson(link = "log"),
+          data = muscle)
+
+anova(muscle_mod2, muscle_mod4)  # MPs NS chi2 = 4.9998, p = 0.1718
+
+muscle_mod2.1 <-
+  glmmTMB(adjusted_count ~ offset(log(fillet_weight)),
+          family = poisson(link = "log"),
+          data = muscle)
+
+anova(muscle_mod2, muscle_mod2.1)  # p = 0.003
 
 muscle_mod_pred <- 
   as.data.frame(predict_response(muscle_mod2, 
                                  terms = reference_grid,
                                  condition = c(fillet_weight = 
                                                  mean(muscle$fillet_weight))),
-                terms_to_colnames = TRUE)
+                terms_to_colnames = TRUE) %>% 
+  mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
 muscle_mod_sim <- 
   as.data.frame(predict_response(muscle_mod2, 
@@ -1025,7 +1068,8 @@ muscle_mod_sim <-
                                  nsim = 1000,
                                  condition = c(fillet_weight = 
                                                  mean(muscle$fillet_weight))),
-                terms_to_colnames = TRUE)
+                terms_to_colnames = TRUE) %>% 
+  mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
 # Plot model predictions
 
@@ -1146,7 +1190,7 @@ ggplot(fish_wide) +
 dev.off()
 
 liverGITmod1 <- glmmTMB(Liver ~ log(GIT + 1) * polymer + 
-                          log(total_length) +
+                          scale(log(total_length)) +
                           offset(log(liver_weight)) +
                           (1 | corral),
                         family = poisson(link = "log"),
@@ -1156,8 +1200,8 @@ plot(simulateResiduals(liverGITmod1))
 
 summary(liverGITmod1)
 
-liverGITmod2 <- glmmTMB(Liver ~ polymer +  
-                          log(total_length) +
+liverGITmod2 <- glmmTMB(Liver ~ log(GIT + 1) + polymer + 
+                          scale(log(total_length)) +
                           offset(log(fillet_weight)) +
                           (1 | corral),
                         family = poisson(link = "log"),
@@ -1165,9 +1209,34 @@ liverGITmod2 <- glmmTMB(Liver ~ polymer +
 
 anova(liverGITmod1, liverGITmod2)
 
-test_predictions(liverGITmod1, terms = c("GIT"), by = "polymer")
+plot(simulateResiduals(liverGITmod2))
 
-predict_response(liverGITmod1, terms = c("GIT", "polymer"), 
+summary(liverGITmod2)
+
+liverGITmod3 <- glmmTMB(Liver ~ log(GIT + 1) + polymer + 
+                          scale(log(total_length)) +
+                          offset(log(liver_weight)) +
+                          (1 | corral),
+                        family = poisson(link = "log"),
+                        ziformula = ~1,
+                        data = fish_wide)
+
+plot(simulateResiduals(liverGITmod3))
+
+anova(liverGITmod2, liverGITmod3)  # ZIP not better
+
+liverGITmod4 <- glmmTMB(Liver ~ log(GIT + 1) + 
+                          scale(log(total_length)) +
+                          offset(log(liver_weight)) +
+                          (1 | corral),
+                        family = poisson(link = "log"),
+                        data = fish_wide)
+
+anova(liverGITmod2, liverGITmod4)  # polymer not sig. p = 0.3597
+
+test_predictions(liverGITmod2, terms = c("GIT"), by = "polymer")
+
+predict_response(liverGITmod2, terms = c("GIT", "polymer"), 
                  condition = c(liver_weight = mean(livers$liver_weight)))
 
 ##### GIT and muscle #####
@@ -1200,7 +1269,7 @@ dev.off()
 
 muscleGITmod1 <- glmmTMB(Muscle ~ 
                            log(GIT + 1) * polymer + 
-                           log(total_length) +
+                           scale(log(total_length)) +
                           offset(log(fillet_weight)) +
                            (1 | corral), 
                          family = poisson(link = "log"), 
@@ -1210,20 +1279,46 @@ plot(simulateResiduals(muscleGITmod1, integerResponse = TRUE))
 
 summary(muscleGITmod1)
 
-test_predictions(muscleGITmod1, terms = c("GIT", "polymer"))
-
-predict_response(muscleGITmod1, terms = c("GIT", "polymer"), 
-                 condition = c(fillet_weight = mean(fish_wide$fillet_weight)))
-
-muscleGITmod2 <- glmmTMB(Muscle ~ polymer +
+muscleGITmod2 <- glmmTMB(Muscle ~ 
+                           log(GIT + 1) + polymer + 
+                           scale(log(total_length)) +
                            offset(log(fillet_weight)) +
-                           (1 | corral),
+                           (1 | corral), 
                          family = poisson(link = "log"), 
                          data = fish_wide)
 
-anova(muscleGITmod1, muscleGITmod2)  # marginally signficant
+plot(simulateResiduals(muscleGITmod2, integerResponse = TRUE))
 
-plot(simulateResiduals(organmod4, integerResponse = TRUE))
+muscleGITmod3 <- glmmTMB(Muscle ~ 
+                           log(GIT + 1) + polymer + 
+                           scale(log(total_length)) +
+                           offset(log(fillet_weight)) +
+                           (1 | corral), 
+                         family = poisson(link = "log"), 
+                         ziformula = ~ 1,
+                         data = fish_wide)
+
+plot(simulateResiduals(muscleGITmod3, integerResponse = TRUE))
+
+anova(muscleGITmod2, muscleGITmod3)  # ZIP fit not better but DHARMa better
+
+summary(muscleGITmod3)
+
+muscleGITmod4 <- glmmTMB(Muscle ~ 
+                           log(GIT + 1) + 
+                           scale(log(total_length)) +
+                           offset(log(fillet_weight)) +
+                           (1 | corral), 
+                         family = poisson(link = "log"), 
+                         ziformula = ~ 1,
+                         data = fish_wide)
+
+anova(muscleGITmod3, muscleGITmod4)  # polymer NS chi2 = 3.2388, p = 0.5187
+
+test_predictions(muscleGITmod3, terms = c("GIT", "polymer"))
+
+predict_response(muscleGITmod3, terms = c("GIT", "polymer"), 
+                 condition = c(fillet_weight = mean(fish_wide$fillet_weight)))
 
 
 #### Explore particle size and shape ####
@@ -1276,7 +1371,8 @@ plot(predict_response(width.mod1,
                       terms = "organ"))
 
 test_predictions(width.mod1,
-                 terms = "organ")
+                 terms = "organ",
+                 p_adjust = "tukey")
 
 # Plot
 
