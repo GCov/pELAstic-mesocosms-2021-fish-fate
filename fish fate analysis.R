@@ -1334,22 +1334,22 @@ measurements <-
 
 # Statistical differences??
 
-length.mod1 <- lm(log(length) ~ organ, data = measurements)
+length.mod1 <- glmmTMB(log(length) ~ organ + (1 | sample_ID), data = measurements)
 summary(length.mod1)
 
 plot(simulateResiduals(length.mod1))
 
-length.mod2 <- lm(log(length) ~ 1, data = measurements)
+length.mod2 <- glmmTMB(log(length) ~ 1 + (1 | sample_ID), data = measurements)
 
 anova(length.mod1, length.mod2)  # not sig.
 
-width.mod1 <- lm(log(width) ~ organ, data = measurements)
+width.mod1 <- glmmTMB(log(width) ~ organ + (1 | sample_ID), data = measurements)
 summary(width.mod1)
 
 plot(simulateResiduals(width.mod1))
 
-width.mod2 <- lm(log(width) ~ 1, data = measurements)
-anova(width.mod1, width.mod2)  # sig.
+width.mod2 <- glmmTMB(log(width) ~ 1 + (1 | sample_ID), data = measurements)
+anova(width.mod1, width.mod2)  # marginally significant
 
 length.predict <- 
   as.data.frame(predict_response(length.mod1,
@@ -1370,8 +1370,9 @@ size.predict <-
 plot(predict_response(width.mod1,
                       terms = "organ"))
 
-test_predictions(width.mod1,
-                 terms = "organ",
+test_predictions(predict_response(width.mod1,
+                                  terms = "organ"),
+                 test = "pairwise",
                  p_adjust = "tukey")
 
 # Plot
