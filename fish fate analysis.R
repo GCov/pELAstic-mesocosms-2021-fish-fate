@@ -590,9 +590,9 @@ fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
 
 total_counts <-
   fish_full_summary2 %>% 
-  group_by(organ, corral, nominal_MPs, fish_ID) %>% 
+  group_by(organ, nominal_MPs, fish_ID) %>% 
   summarize(total_count = sum(adjusted_count)) %>% 
-  group_by(organ, corral, nominal_MPs) %>% 
+  group_by(organ, nominal_MPs) %>% 
   summarize(mean = mean(total_count),
             sd = sd(total_count))
 
@@ -1332,6 +1332,21 @@ measurements <-
   fish4 %>% 
   filter(!is.na(length) & organ != "Gill" & polymer != "Contamination")
 
+# Remove fibres that might be contamination (aspect ratio >= 5)
+
+measurements <-
+  measurements %>% 
+  filter(aspect_ratio <= 5)
+
+# Summarize
+
+measurements %>% 
+  group_by(organ) %>% 
+  summarize(min.length = min(length),
+            max.length = max(length),
+            min.width = min(width),
+            max.width = max(width))
+
 # Statistical differences??
 
 length.mod1 <- glmmTMB(log(length) ~ organ + (1 | sample_ID), data = measurements)
@@ -1366,6 +1381,14 @@ size.predict <-
   mutate(width.predicted = width.predict$predicted,
          width.conf.low = width.predict$conf.low,
          width.conf.high= width.predict$conf.high)
+
+plot(predict_response(length.mod1,
+                      terms = "organ"))
+
+test_predictions(predict_response(length.mod1,
+                                  terms = "organ"),
+                 test = "pairwise",
+                 p_adjust = "tukey")
 
 plot(predict_response(width.mod1,
                       terms = "organ"))
