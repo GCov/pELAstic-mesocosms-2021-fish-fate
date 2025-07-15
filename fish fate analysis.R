@@ -1345,7 +1345,8 @@ measurements %>%
   summarize(min.length = min(length),
             max.length = max(length),
             min.width = min(width),
-            max.width = max(width))
+            max.width = max(width),
+            sampe.size = length(length))
 
 # Statistical differences??
 
