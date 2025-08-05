@@ -564,12 +564,6 @@ reference_grid <-
   expand.grid(st_MPs = unique(fish_full_summary$st_MPs),
               polymer = unique(fish_full_summary$polymer))
 
-# summarize total particles
-
-fish_full_summary %>% 
-  group_by(organ, corral, nominal_MPs) %>% 
-  summarize(total_count = sum(adjusted_count))
-
 ##### GLMM with addition/subtraction #####
 
 ## Modified to use separate models for each organ
@@ -719,6 +713,26 @@ GIT_mod_sim <-
 
 # Plot model predictions
 
+# Reorder so that it's PE, PS, PET
+
+GIT_mod_pred <-
+  GIT_mod_pred %>% 
+  mutate(polymer = factor(polymer, levels = c("PE",
+                                              "PS",
+                                              "PET")))
+
+GIT_mod_sim <-
+  GIT_mod_sim %>% 
+  mutate(polymer = factor(polymer, levels = c("PE",
+                                              "PS",
+                                              "PET")))
+
+GITs <-
+  GITs %>% 
+  mutate(polymer = factor(polymer, levels = c("PE",
+                                              "PS",
+                                              "PET")))
+
 tiff("GIT Adjusted Data.tiff", width = 18, height = 8, units = "cm",
      res = 500)
 
@@ -769,12 +783,12 @@ ggplot(GIT_mod_pred) +
                                         seed = 123)) +
   facet_grid(. ~ polymer,
              scales = "free_y") +
-  scale_fill_manual(values = c("pink",
-                               "yellow",
+  scale_fill_manual(values = c("yellow",
+                               "pink",
                                "blue"),
                     name = "") +
-  scale_colour_manual(values = c("pink4",
-                                 "yellow4",
+  scale_colour_manual(values = c("yellow4",
+                                 "pink4",
                                  "blue4"),
                       name = "") +
   scale_x_continuous(trans = "log1p",
@@ -915,7 +929,7 @@ liver_mod3 <-
 anova(liver_mod1, liver_mod2)
 anova(liver_mod2, liver_mod3)  # polymer NS p = 0.111
 
-  liver_mod2.1 <-
+liver_mod2.1 <-
   glmmTMB(adjusted_count ~ offset(log(liver_weight)),
           family = poisson(link = "log"),
           data = livers)
@@ -945,6 +959,13 @@ liver_mod_pred$polymer <- factor(liver_mod_pred$polymer,
                                  levels = c("PS", "PE", "PET"))
 livers$polymer <- factor(livers$polymer,
                          levels = c("PS", "PE", "PET"))
+
+livers <-
+  livers %>% 
+  mutate(polymer = factor(polymer,
+                          levels = c("PE",
+                                     "PS",
+                                     "PET")))
 
 tiff("Livers Adjusted Data.tiff", width = 18, height = 8, units = "cm",
      res = 500)
@@ -982,12 +1003,12 @@ ggplot() +
                                         seed = 123)) +
   facet_grid(. ~ polymer,
              scales = "free_y") +
-  scale_fill_manual(values = c("pink",
-                               "yellow",
+  scale_fill_manual(values = c("yellow",
+                               "pink",
                                "blue"),
                     name = "") +
-  scale_colour_manual(values = c("pink4",
-                                 "yellow4",
+  scale_colour_manual(values = c("yellow4",
+                                 "pink4",
                                  "blue4"),
                       name = "") +
   scale_x_continuous(trans = "log1p",
@@ -1073,6 +1094,27 @@ muscle_mod_sim <-
 
 # Plot model predictions
 
+muscle <-
+  muscle %>% 
+  mutate(polymer = factor(polymer, 
+                          levels = c("PE",
+                                     "PS",
+                                     "PET")))
+
+muscle_mod_pred <-
+  muscle_mod_pred %>% 
+  mutate(polymer = factor(polymer, 
+                          levels = c("PE",
+                                     "PS",
+                                     "PET")))
+
+muscle_mod_sim <-
+  muscle_mod_sim %>% 
+  mutate(polymer = factor(polymer, 
+                          levels = c("PE",
+                                     "PS",
+                                     "PET")))
+
 tiff("Muscle Adjusted Data.tiff", width = 18, height = 8, units = "cm",
      res = 500)
 
@@ -1123,12 +1165,12 @@ ggplot(muscle_mod_pred) +
                                         seed = 123)) +
   facet_grid(. ~ polymer,
              scales = "free_y") +
-  scale_fill_manual(values = c("pink",
-                               "yellow",
+  scale_fill_manual(values = c("yellow",
+                               "pink",
                                "blue"),
                     name = "") +
-  scale_colour_manual(values = c("pink4",
-                                 "yellow4",
+  scale_colour_manual(values = c("yellow4",
+                                 "pink4",
                                  "blue4"),
                       name = "") +
   scale_x_continuous(trans = "log1p",
@@ -1336,7 +1378,7 @@ measurements <-
 
 measurements <-
   measurements %>% 
-  filter(aspect_ratio <= 5)
+  filter(aspect_ratio <= 5)  # removes 6 particles
 
 # Summarize
 
@@ -1436,7 +1478,7 @@ ggplot(measurements) +
                     name = "Polymer") +
   scale_x_continuous(limits = c(0,700),
                      expand = c(0,0)) +
-  scale_y_continuous(limits = c(0,2500),
+  scale_y_continuous(limits = c(0,1200),
                      expand = c(0,0)) +
   theme1
 
