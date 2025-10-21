@@ -582,6 +582,14 @@ fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
 
 # summarize total particles
 
+fish_full_summary2 %>% 
+  group_by(fish_ID, organ) %>% 
+  summarize(sum = sum(adjusted_count)) %>% 
+  ungroup() %>% 
+  group_by(organ) %>% 
+  summarize(min = min(sum),
+            max = max(sum))
+
 total_counts <-
   fish_full_summary2 %>% 
   group_by(organ, nominal_MPs, fish_ID) %>% 
@@ -1386,9 +1394,13 @@ measurements %>%
   group_by(organ) %>% 
   summarize(min.length = min(length),
             max.length = max(length),
+            average.length = mean(length),
             min.width = min(width),
             max.width = max(width),
-            sampe.size = length(length))
+            average_width = mean(width),
+            sample.size = length(length))
+
+
 
 # Statistical differences??
 
