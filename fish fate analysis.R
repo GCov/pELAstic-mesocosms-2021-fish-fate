@@ -6,6 +6,7 @@ library(DHARMa)
 library(ggeffects)
 library(randomForest)
 library(caret)
+library(cowplot)
 
 theme1 <-
   theme_bw() +
@@ -1040,7 +1041,7 @@ ggplot() +
   scale_x_continuous(trans = "log1p",
                      breaks = unique(fish_full_summary$nominal_MPs),
                      expand = c(0.02, 0)) +
-  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
+  labs(x = expression(paste("Nominal Microplastic Loading Concentration (Particles"~L^-1*")")),
        y = expression(paste("Microplastics in Yellow Perch Liver Tissue (Particles"~g^-1*")"))) +
   theme1 +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -1206,7 +1207,7 @@ ggplot(muscle_mod_pred) +
   scale_y_continuous(expand = c(0.02, 0),
                      trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
-  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
+  labs(x = expression(paste("Nominal Microplastic Loading Concentration (Particles"~L^-1*")")),
        y = expression(paste("Microplastics in Yellow Perch Muscle Tissue (particles"~g^-1*")"))) +
   theme1 +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -1440,7 +1441,7 @@ summary(width.mod1)
 plot(simulateResiduals(width.mod1))
 
 width.mod2 <- glmmTMB(log(width) ~ 1 + (1 | sample_ID), data = measurements)
-anova(width.mod1, width.mod2)  # marginally significant
+anova(width.mod1, width.mod2)  # significant
 
 length.predict <- 
   as.data.frame(predict_response(length.mod1,
@@ -1476,46 +1477,50 @@ test_predictions(predict_response(width.mod1,
 
 # Plot
 
-tiff("Shape Plot.tiff", width = 18, height = 6, units = "cm",
-     res = 500)
 
-ggplot(measurements) +
-  geom_point(aes(x = width * 1000,
-                 y = length * 1000,
-                 fill = polymer),
-             shape = 21,
-             size = 1) +
-  geom_point(data = size.predict,
-             aes(x = width.predicted * 1000,
-                 y = predicted * 1000),
-             colour = "red",
-             size = 1.5) +
-  geom_linerange(data = size.predict,
-                 aes(xmin = width.conf.low * 1000,
-                     xmax = width.conf.high * 1000,
-                     y = predicted * 1000),
-                 colour = "red",
-                 linewidth = 0.5) +
-  geom_linerange(data = size.predict,
-                 aes(ymin = conf.low * 1000,
-                     ymax = conf.high * 1000,
-                     x = width.predicted * 1000),
-                 colour = "red",
-                 linewidth = 0.5) +
+fishplot <-
+  ggplot(measurements) +
+  geom_abline(aes(intercept = 0, slope = 1), linetype = "dashed") +
+  geom_point(aes(
+    x = width * 1000,
+    y = length * 1000,
+    fill = polymer
+  ),
+  shape = 21,
+  size = 1) +
+  geom_point(
+    data = size.predict,
+    aes(x = width.predicted * 1000, y = predicted * 1000),
+    colour = "red",
+    size = 1.5
+  ) +
+  geom_linerange(
+    data = size.predict,
+    aes(
+      xmin = width.conf.low * 1000,
+      xmax = width.conf.high * 1000,
+      y = predicted * 1000
+    ),
+    colour = "red",
+    linewidth = 0.5
+  ) +
+  geom_linerange(
+    data = size.predict,
+    aes(
+      ymin = conf.low * 1000,
+      ymax = conf.high * 1000,
+      x = width.predicted * 1000
+    ),
+    colour = "red",
+    linewidth = 0.5
+  ) +
   facet_grid(. ~ organ) +
-  labs(x = expression(paste("Width ("*mu*"m)")),
-       y = expression(paste("Length ("*mu*"m)"))) +
-  scale_fill_manual(values = c("yellow",
-                               "blue",
-                               "pink"),
-                    name = "Polymer") +
-  scale_x_continuous(limits = c(0,700),
-                     expand = c(0,0)) +
-  scale_y_continuous(limits = c(0,1200),
-                     expand = c(0,0)) +
+  labs(x = expression(paste("Width (" * mu * "m)")), y = expression(paste("Length (" *
+                                                                            mu * "m)"))) +
+  scale_fill_manual(values = c("yellow", "blue", "pink"), name = "Polymer") +
+  scale_x_continuous(limits = c(0, 700), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 1200), expand = c(0, 0)) +
   theme1
-
-dev.off()
 
 ## Add in stock particle distribution data ####
 
@@ -1537,11 +1542,59 @@ measurements2 <-
   mutate(length = length * 1000) %>% 
   rbind(stock)
 
-ggplot(measurements2) +
-  geom_density(aes(x = length,
-                     fill = organ),
-                alpha = 0.5) +
-  scale_fill_viridis_d(option = "plasma") +
-  facet_grid(. ~ polymer,
-             scales = "free") +
-  theme1
+### Plot ####
+
+### Statistics ####
+
+stockcompare1 <- 
+  aov(log(length) ~ organ,
+          data = measurements2 %>% filter(organ == "Stock Particles" |
+                                            organ == "GIT"))
+plot(simulateResiduals(stockcompare1))
+summary(stockcompare1)
+
+
+measurements2 <-
+  measurements2 %>%
+  mutate(organ = factor(organ, levels = c(
+    "GIT", "Muscle", "Liver", "Stock Particles"
+  )),
+  polymer = factor(polymer, levels = c("PE", "PS", "PET")))
+
+plotwithstock <-
+  ggplot() +
+  geom_histogram(
+    data = measurements2 %>% filter(organ != "Stock Particles"),
+    aes(x = length,
+        y = after_stat(density),
+        fill = polymer),
+    colour = "black",
+    alpha = 1,
+    binwidth = 100
+  ) +
+  geom_density(data = measurements2 %>% filter(organ == "Stock Particles") %>% 
+                 select(-organ),
+               aes(x = length)) +
+  labs(x = expression(paste("Microplastic Particle Length (" * mu * "m)")), 
+       y = "Density") +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0.00001)) +
+  scale_fill_manual(values = c("yellow", "pink", "blue")) +
+  facet_grid(organ ~ polymer) +
+  theme1 +
+  theme(legend.position = "none")
+
+
+tiff("Shape Plot.tiff", width = 18, height = 16, units = "cm",
+     res = 500)
+
+plot_grid(fishplot, plotwithstock,
+          nrow = 2,
+          labels = c("A", "B"),
+          rel_heights = c(1,1.5))
+
+dev.off()
+
+measurements2 %>% 
+  group_by(organ, polymer) %>% 
+  summarize(median = median(length))

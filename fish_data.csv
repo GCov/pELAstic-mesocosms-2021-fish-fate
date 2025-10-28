@@ -121,7 +121,7 @@ D_7_GIT,D,D7,GIT,Maddy,22,PE,,Gloria,Raman,PE,,,Mira,0.406,0.232,D_7_GIT_22,,1.7
 D_7_GIT,D,D7,GIT,Maddy,23,PE,,Gloria,Raman,PE,,,Mira,0.474,0.268,D_7_GIT_23,,1.768656716
 D_7_GIT,D,D7,GIT,Maddy,24,PE,,Gloria,Raman,PE,,,Mira,0.378,0.188,D_7_GIT_24,,2.010638298
 D_7_GIT,D,D7,GIT,Maddy,25,PE,,Gloria,Raman,PE,,,Mira,0.52,0.215,D_7_GIT_25,,2.418604651
-D_7_GIT,D,D7,GIT,Maddy,26,PET,,Gloria,Raman,PET,,,Mira,0.215,0.225,D_7_GIT_26,,0.955555556
+D_7_GIT,D,D7,GIT,Maddy,26,PET,,Gloria,Raman,PET,,,Mira,0.341,0.213,D_7_GIT_26,,0.955555556
 D_7_GIT,D,D7,GIT,Maddy,27,PE,,,NA,NA,,,,,,,,
 D_7_GIT,D,D7,GIT,Maddy,28,PE,,,NA,NA,,,,,,,,
 D_7_GIT,D,D7,GIT,Maddy,29,PE,,,NA,NA,,,,,,,,
@@ -709,7 +709,7 @@ D_9_G,D,D9,Gill,Mira,1,PS,,Gloria,Raman,PS,,,Mira,0.267,0.115,D_9_G_1,,2.3217391
 D_9_G,D,D9,Gill,Mira,2,PS,,Gloria,Raman,PS,,,Mira,0.324,0.173,D_9_G_2,,1.87283237
 D_9_G,D,D9,Gill,Mira,3,PS,,Gloria,Raman,PS,,,Mira,0.141,0.152,D_9_G_3,,0.927631579
 D_9_GIT,D,D9,GIT,Maddy,1,PS,,Garth,Raman,PS,,,Mira,0.317,0.288,D_9_GIT_1,,1.100694444
-D_9_GIT,D,D9,GIT,Maddy,2,PS,,Garth,Raman,PS,,,Mira,0.659,0.678,D_9_GIT_2,,0.971976401
+D_9_GIT,D,D9,GIT,Maddy,2,PS,,Garth,Raman,PS,,,Mira,0.658,0.622,D_9_GIT_2,,0.971976401
 D_9_GIT,D,D9,GIT,Maddy,3,PS,,Garth,Raman,PS,,,Mira,0.6,0.307,D_9_GIT_3,,1.954397394
 D_9_GIT,D,D9,GIT,Maddy,4,PS,,Garth,Raman,PS,,,Mira,0.274,0.266,D_9_GIT_4,,1.030075188
 D_9_GIT,D,D9,GIT,Maddy,5,PS,,Garth,Raman,PS,,,Mira,0.372,0.219,D_9_GIT_5,,1.698630137
@@ -1468,7 +1468,7 @@ G_13_G,G,G13,Gill,Mira,93,PET,,,NA,NA,,,,,,,,
 G_13_G,G,G13,Gill,Mira,94,PET,,,NA,NA,,,,,,,,
 G_13_GIT,G,G13,GIT,Mira,1,PE,,Gloria,Raman,PE,,,Mira,0.47,0.393,G_13_GIT_1,,1.195928753
 G_13_GIT,G,G13,GIT,Mira,2,PS,,Gloria,Raman,PS,,,Mira,0.125,0.107,G_13_GIT_2,,1.168224299
-G_13_GIT,G,G13,GIT,Mira,3,PE,,Gloria,Raman,PE,,,Mira,0.231,0.522,G_13_GIT_3,,0.442528736
+G_13_GIT,G,G13,GIT,Mira,3,PE,,Gloria,Raman,PE,,,Mira,0.538,0.22,G_13_GIT_3,,0.442528736
 G_13_GIT,G,G13,GIT,Mira,4,PE,,Gloria,Raman,PE,,,Mira,0.289,0.07,G_13_GIT_4,,4.128571429
 G_13_GIT,G,G13,GIT,Mira,5,PE,,Gloria,Raman,PE,,,Mira,0.61,0.273,G_13_GIT_5,,2.234432234
 G_13_GIT,G,G13,GIT,Mira,6,PS,,Gloria,Raman,PS,,,Mira,0.186,0.165,G_13_GIT_6,,1.127272727
