@@ -580,6 +580,24 @@ fish_full_summary2 <-
 
 fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
 
+# Summarize correction amount by polymer
+
+fish_full_summary2 %>% 
+  group_by(polymer, organ) %>% 
+  summarize(mean_correction = mean((adjusted_count - count) * 100),
+            sd_correction = sd((adjusted_count - count) * 100))
+
+# Summarize percent fish containing MPs
+data.frame(
+  fish_full_summary2 %>%
+    group_by(fish_ID, organ, nominal_MPs) %>% 
+    summarize(total = sum(adjusted_count)) %>% 
+    mutate(present = ifelse(total == 0, 0, 1)) %>%
+    group_by(organ, nominal_MPs) %>%
+    summarize(percent = (sum(present) / length(present)) * 100)
+)
+
+
 # summarize total particles
 
 fish_full_summary2 %>% 
@@ -741,7 +759,7 @@ GITs <-
                                               "PS",
                                               "PET")))
 
-tiff("GIT Adjusted Data.tiff", width = 18, height = 8, units = "cm",
+tiff("GIT Adjusted Data.tiff", width = 12, height = 12, units = "cm",
      res = 500)
 
 set.seed(242)
@@ -767,7 +785,7 @@ ggplot(GIT_mod_pred) +
                    yend = adjusted_count),
                colour = "red",
                position = position_jitter(height = 0,
-                                          width = 0.1,
+                                          width = 0.3,
                                           seed = 123),
                alpha = 0.5,
                linewidth = 0.5) +
@@ -778,7 +796,7 @@ ggplot(GIT_mod_pred) +
              size = 1.5,
              alpha = 0.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
   geom_point(data = GITs,
              aes(x = nominal_MPs,
@@ -787,9 +805,9 @@ ggplot(GIT_mod_pred) +
              shape = 21,
              size = 1.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
-  facet_grid(. ~ polymer,
+  facet_grid(polymer ~ .,
              scales = "free_y") +
   scale_fill_manual(values = c("yellow",
                                "pink",
@@ -805,10 +823,11 @@ ggplot(GIT_mod_pred) +
   scale_y_continuous(expand = c(0.02, 0),
                      trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
-  labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
-       y = expression(paste("Microplastics "*GIT^-1))) +
+  labs(x = expression(paste("Nominal Microplastic Loading Concentration (Particles"~L^-1*")")),
+       y = expression(paste("Microplastics in Yellow Perch GITs (Particles"~Individual^-1*")"))) +
   theme1 +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
 
 dev.off()
 
@@ -975,7 +994,7 @@ livers <-
                                      "PS",
                                      "PET")))
 
-tiff("Livers Adjusted Data.tiff", width = 18, height = 8, units = "cm",
+tiff("Livers Adjusted Data.tiff", width = 12, height = 12, units = "cm",
      res = 500)
 
 set.seed(242)
@@ -987,7 +1006,7 @@ ggplot() +
                    yend = adjusted_count),
                colour = "red",
                position = position_jitter(height = 0,
-                                          width = 0.1,
+                                          width = 0.3,
                                           seed = 123),
                alpha = 0.5,
                linewidth = 0.5) +
@@ -998,7 +1017,7 @@ ggplot() +
              size = 1.5,
              alpha = 0.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
   geom_point(data = livers,
              aes(x = nominal_MPs,
@@ -1007,10 +1026,9 @@ ggplot() +
              shape = 21,
              size = 1.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
-  facet_grid(. ~ polymer,
-             scales = "free_y") +
+  facet_grid(polymer ~ .) +
   scale_fill_manual(values = c("yellow",
                                "pink",
                                "blue"),
@@ -1023,9 +1041,10 @@ ggplot() +
                      breaks = unique(fish_full_summary$nominal_MPs),
                      expand = c(0.02, 0)) +
   labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
-       y = expression(paste("Microplastics "*g^-1))) +
+       y = expression(paste("Microplastics in Yellow Perch Liver Tissue (Particles"~g^-1*")"))) +
   theme1 +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
 
 dev.off()
 
@@ -1123,7 +1142,7 @@ muscle_mod_sim <-
                                      "PS",
                                      "PET")))
 
-tiff("Muscle Adjusted Data.tiff", width = 18, height = 8, units = "cm",
+tiff("Muscle Adjusted Data.tiff", width = 12, height = 12, units = "cm",
      res = 500)
 
 set.seed(242)
@@ -1149,7 +1168,7 @@ ggplot(muscle_mod_pred) +
                    yend = adjusted_count),
                colour = "red",
                position = position_jitter(height = 0,
-                                          width = 0.1,
+                                          width = 0.3,
                                           seed = 123),
                alpha = 0.5,
                linewidth = 0.5) +
@@ -1160,7 +1179,7 @@ ggplot(muscle_mod_pred) +
              size = 1.5,
              alpha = 0.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
   geom_point(data = muscle,
              aes(x = nominal_MPs,
@@ -1169,9 +1188,9 @@ ggplot(muscle_mod_pred) +
              shape = 21,
              size = 1.5,
              position = position_jitter(height = 0,
-                                        width = 0.1,
+                                        width = 0.3,
                                         seed = 123)) +
-  facet_grid(. ~ polymer,
+  facet_grid(polymer ~ .,
              scales = "free_y") +
   scale_fill_manual(values = c("yellow",
                                "pink",
@@ -1188,9 +1207,10 @@ ggplot(muscle_mod_pred) +
                      trans = "log1p",
                      breaks = c(0, 1, 10, 100, 1000)) +
   labs(x = expression(paste("Nominal Exposure Microplastics "*L^-1)),
-       y = expression(paste("Microplastics "*g^-1))) +
+       y = expression(paste("Microplastics in Yellow Perch Muscle Tissue (particles"~g^-1*")"))) +
   theme1 +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
 
 dev.off()
 
@@ -1201,6 +1221,7 @@ predict_response(muscle_mod1, terms = reference_grid,
                                  mean(muscle$fillet_weight)))
 
 #### Explore relationships among organs ####
+# Removing this part from ths paper #
 
 # Put data into wide form
 
@@ -1496,3 +1517,31 @@ ggplot(measurements) +
 
 dev.off()
 
+## Add in stock particle distribution data ####
+
+stock <- read.csv("stock.csv",
+                  header = TRUE,
+                  stringsAsFactors = TRUE)
+
+stock <-
+  stock %>% 
+  mutate(organ = "Stock Particles")
+
+# Combine with perch data
+
+measurements2 <-
+  measurements %>% 
+  select(polymer,
+         length,
+         organ) %>% 
+  mutate(length = length * 1000) %>% 
+  rbind(stock)
+
+ggplot(measurements2) +
+  geom_density(aes(x = length,
+                     fill = organ),
+                alpha = 0.5) +
+  scale_fill_viridis_d(option = "plasma") +
+  facet_grid(. ~ polymer,
+             scales = "free") +
+  theme1
