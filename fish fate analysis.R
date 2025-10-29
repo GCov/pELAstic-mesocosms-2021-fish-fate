@@ -1542,6 +1542,13 @@ measurements2 <-
   mutate(length = length * 1000) %>% 
   rbind(stock)
 
+measurements2 %>% 
+  group_by(organ) %>% 
+  summarize(min.length = min(length),
+            max.length = max(length),
+            average.length = mean(length),
+            sample.size = length(length))
+
 ### Plot ####
 
 ### Statistics ####
