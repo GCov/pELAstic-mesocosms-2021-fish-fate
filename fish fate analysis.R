@@ -726,7 +726,8 @@ anova(GIT_mod6, GIT_mod6.1)  # chi2 = 4779, p < 0.001
 
 GIT_mod_pred <- 
   as.data.frame(predict_response(GIT_mod6, 
-                                 terms = reference_grid),
+                                 terms = reference_grid,
+                                 type = "zero_inflated"),
                 terms_to_colnames = TRUE) %>% 
   mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
@@ -1476,30 +1477,31 @@ test_predictions(predict_response(width.mod1,
                  p_adjust = "tukey")
 
 # Plot
-
+measurements$organ <- factor(measurements$organ, 
+                             levels = c("GIT", "Muscle", "Liver"))
 
 fishplot <-
   ggplot(measurements) +
   geom_abline(aes(intercept = 0, slope = 1), linetype = "dashed") +
   geom_point(aes(
-    x = width * 1000,
-    y = length * 1000,
+    x = length * 1000,
+    y = width * 1000,
     fill = polymer
   ),
   shape = 21,
   size = 1) +
   geom_point(
     data = size.predict,
-    aes(x = width.predicted * 1000, y = predicted * 1000),
+    aes(x = predicted * 1000, y = width.predicted * 1000),
     colour = "red",
     size = 1.5
   ) +
   geom_linerange(
     data = size.predict,
     aes(
-      xmin = width.conf.low * 1000,
-      xmax = width.conf.high * 1000,
-      y = predicted * 1000
+      xmin = conf.low * 1000,
+      xmax = conf.high * 1000,
+      y = width.predicted * 1000
     ),
     colour = "red",
     linewidth = 0.5
@@ -1507,19 +1509,19 @@ fishplot <-
   geom_linerange(
     data = size.predict,
     aes(
-      ymin = conf.low * 1000,
-      ymax = conf.high * 1000,
-      x = width.predicted * 1000
+      ymin = width.conf.low * 1000,
+      ymax = width.conf.high * 1000,
+      x = predicted * 1000
     ),
     colour = "red",
     linewidth = 0.5
   ) +
-  facet_grid(. ~ organ) +
-  labs(x = expression(paste("Width (" * mu * "m)")), y = expression(paste("Length (" *
-                                                                            mu * "m)"))) +
+  facet_grid(organ ~ .) +
+  labs(x = expression(paste("Length (" * mu * "m)")), y = expression(paste("Width (" *
+                                                                             mu * "m)"))) +
   scale_fill_manual(values = c("yellow", "blue", "pink"), name = "Polymer") +
-  scale_x_continuous(limits = c(0, 700), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 1200), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(0, 1200), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 700), expand = c(0, 0)) +
   theme1
 
 ## Add in stock particle distribution data ####
@@ -1577,7 +1579,7 @@ plotwithstock <-
         fill = polymer),
     colour = "black",
     alpha = 1,
-    binwidth = 100
+    binwidth = 50
   ) +
   geom_density(data = measurements2 %>% filter(organ == "Stock Particles") %>% 
                  select(-organ),
@@ -1592,13 +1594,13 @@ plotwithstock <-
   theme(legend.position = "none")
 
 
-tiff("Shape Plot.tiff", width = 18, height = 16, units = "cm",
+tiff("Shape Plot.tiff", width = 18, height = 18, units = "cm",
      res = 500)
 
 plot_grid(fishplot, plotwithstock,
           nrow = 2,
           labels = c("A", "B"),
-          rel_heights = c(1,1.5))
+          rel_heights = c(1,1))
 
 dev.off()
 
