@@ -617,6 +617,21 @@ total_counts <-
   summarize(mean = mean(total_count),
             sd = sd(total_count))
 
+# Differences between organs and GIT
+
+fish_full_summary2 %>% 
+  group_by(organ, nominal_MPs, fish_ID) %>% 
+  summarize(total_count = sum(adjusted_count)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = organ,
+              values_from = total_count) %>% 
+  mutate(muscle_diff = Muscle / GIT * 100,
+         liver_diff = Liver / GIT * 100) %>% 
+  filter(nominal_MPs != 0 &
+         muscle_diff != Inf) %>% 
+  summarize(mean_muscle_diff = mean(muscle_diff),
+            mean_liver_diff = mean(liver_diff))
+
 # Compare original and adjusted data
 
 ggplot(fish_full_summary2) +
