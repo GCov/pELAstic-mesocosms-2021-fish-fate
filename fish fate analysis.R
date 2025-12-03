@@ -1,12 +1,14 @@
-#### Load Packages ####
+# Load Packages ####
 
 library(tidyverse)
 library(glmmTMB)
 library(DHARMa)
-library(ggeffects)
 library(randomForest)
 library(caret)
 library(cowplot)
+library(ggeffects)
+
+# Set a plotting theme ####
 
 theme1 <-
   theme_bw() +
@@ -23,15 +25,15 @@ theme1 <-
   )
 
 
-#### Load Data and Prepare ####
+# Load Data and Prepare ####
 
-# First load in the fish data
+# First load in the yellow perch data
 
 fish <- read.csv("fish_data.csv",
                  header = TRUE,
                  stringsAsFactors = TRUE)
 
-str(fish)
+str(fish)  # look at the structure of the data
 
 # Add treatments and change name of organ from fillet to muscle
 
@@ -39,14 +41,16 @@ treatments <-
   data.frame(corral = as.factor(c("B", "C", "D", "E", "F", "G", "H", "I")),
              nominal_MPs = as.numeric(c(0, 414, 29240, 100, 6, 7071, 0, 1710)))
 
+# Match MP concentrations with mesocosms
 fish2 <- 
   fish %>% 
   left_join(treatments,
             by = "corral")
 
+# Change organ name from fillet to muscle
 levels(fish2$organ) <- c("Muscle", "Gill", "GIT", "Liver")
 
-# Add biometrics data
+# Add biometrics data (merge with full experiment data)
 
 biometrics <- read.csv("fish_biometrics.csv",
                        header = TRUE,
@@ -62,7 +66,7 @@ fish2 <-
 
 # Those data are ready to go
 # Load in blanks and spike and recovery data
-# We'll deal with these data later
+# We'll deal with these data more later
 
 
 blanks <- read.csv("blanks.csv", 
@@ -77,12 +81,12 @@ SaR <- read.csv("spike_and_recovery.csv",
 
 str(SaR)
 
-#### Spectroscopy Correction ####
+# Spectroscopy Correction ####
 
 # Try correcting the data using a random forest model to predict whether
 # particles should be 'real' ELA particles or not
 
-##### Set up the data #####
+## Set up the data #####
 
 # First separate out just the particles and look at them in a few ways
 
@@ -106,7 +110,7 @@ spectroscopy_particles <-
 # Explore the data a little bit
 
 summary(spectroscopy_particles$count_ID)
-summary(spectroscopy_particles$spectroscopy_method)  # decent data for each method
+summary(spectroscopy_particles$spectroscopy_method)  # decent count each method
 summary(spectroscopy_particles$spectroscopy_ID)
 
 spectroscopy_summary<- 
@@ -114,6 +118,7 @@ spectroscopy_summary<-
   group_by(count_ID, spectroscopy_ID, organ) %>% 
   summarize(count = length(spectroscopy_ID))
 
+# Visualize polymer matches by spectroscopy method
 ggplot(spectroscopy_particles, 
        aes(x = count_ID, 
            fill = spectroscopy_ID)) + 
@@ -135,7 +140,7 @@ spectroscopy_particles <-
                                               "PS", 
                                               "Contamination")))))
 
-# Plot
+# Plot just the new categories
 
 ggplot(spectroscopy_particles, 
        aes(x = count_ID,
@@ -147,6 +152,8 @@ ggplot(spectroscopy_particles,
                     values = c("grey", "yellow", "blue", "pink")) +
   facet_wrap(~ organ, scales = "free_y") +
   theme_bw()
+
+## Set up training/test data sets for the RF ####
 
 # Split into 70% training 70% test
 
@@ -177,9 +184,9 @@ ggplot(test, aes(x = cat,
 
 # Seems to have worked pretty well (representative sampling)
 
-##### Random Forest Model ####
+## Run the Random Forest model ####
 
-set.seed(42354)
+set.seed(42354)  # to make it reproducible
 
 rf <- randomForest(cat ~ organ + count_ID + fish_ID,
                    data = train,
@@ -188,7 +195,7 @@ rf <- randomForest(cat ~ organ + count_ID + fish_ID,
 
 rf  # OOB error rate = 9.64%%
 
-plot(rf)
+plot(rf)  # ntrees stabilizeds after ~100-200, pick 251 for safety
 
 rf2 <- randomForest(cat ~ organ + count_ID + fish_ID,
                    data = train,
@@ -197,14 +204,16 @@ rf2 <- randomForest(cat ~ organ + count_ID + fish_ID,
 
 rf2  # OOB error rate = 10.04%%
 
-train$predict <- predict(rf2)
+train$predict <- predict(rf2)  # predict over training set
 
-test$predict <- predict(rf2, test)
+test$predict <- predict(rf2, test)  # predict over test set
 
+# Generate confusion matrix for training set
 CMtrain <-
   as.data.frame(confusionMatrix(train$predict,
                                 train$cat)$table)
 
+# Plot confusion matrix for training set
 ggplot(CMtrain, 
        aes(x = Reference, y = Prediction, fill = Freq)) +
   geom_tile() +
@@ -217,9 +226,12 @@ ggplot(CMtrain,
 
 # This looks pretty good!!!
 
+# Generate confusion matrix for test set
 CMtest <-
   as.data.frame(confusionMatrix(test$predict,
                                 test$cat)$table)
+
+# Plot test set confustion matrix
 
 tiff("Spectroscopy Test Confusion Matrix.tiff", 
      width = 12, height = 8, units = "cm",
@@ -242,6 +254,7 @@ dev.off()
 
 # This also looks quite good!
 
+# Create a variable importance plot
 varImpPlot(rf2)  # count_ID most important
 
 # This seems OK so refit the model to the full data set
@@ -257,6 +270,9 @@ rf3  # OOB error rate = 9.32%
 
 plot(rf3)
 
+
+# Pick ntrees of 1001
+
 rf4 <- randomForest(cat ~ count_ID + organ,
                     data = train,
                     proximity = TRUE,
@@ -264,12 +280,14 @@ rf4 <- randomForest(cat ~ count_ID + organ,
 
 rf4  # OOB error rate = 9.24%
 
-###### Adjust Particles with no spectroscopy ####
+## Correct with no spectroscopy ####
 
+# isolate particles without spectroscopy
 no_spectroscopy_particles <-
   fish_particles %>% 
   filter(is.na(spectroscopy_method))
 
+# Predict from the full moodel over the no-spectroscopy particles
 no_spectroscopy_particles$predicted_class <-
   predict(rf4, no_spectroscopy_particles)
 
@@ -292,6 +310,8 @@ ggplot(no_spectroscopy_particles,
 # So basically the only 'correction' this has made is to remove all PS from the
 # fillet samples that didn't have spectroscopy done.
 
+
+# Join the assigned identifcations back into the main data
 fish3 <-
   fish2 %>% 
   left_join(no_spectroscopy_particles) %>%
@@ -316,6 +336,7 @@ ggplot(fish3 %>% filter(!is.na(count_ID)),
 
 ##### Plot the Adjusted Data ####
 
+# lumped by treatment
 ggplot(fish3 %>% filter(!is.na(polymer)),
        aes(x = organ, 
            fill = polymer)) +
@@ -325,6 +346,7 @@ ggplot(fish3 %>% filter(!is.na(polymer)),
                     values = c("grey", "yellow", "blue", "pink")) +
   theme_bw()
 
+# for each fish
 ggplot(fish3 %>% filter(!is.na(polymer)),
        aes(x = organ,
            fill = polymer)) +
@@ -334,7 +356,7 @@ ggplot(fish3 %>% filter(!is.na(polymer)),
                     values = c("grey", "yellow", "blue", "pink")) +
   theme_bw()
 
-#### Summarize New Data ####
+## Summarize spectroscopy-corrected data ####
 
 # First remove gill data and contamination particles
 # Then summarize by particle count by polymer
@@ -438,7 +460,7 @@ fish_means <-
 
 fish_means
 
-# Plot
+# Plot total MPs by treatment
 
 ggplot(fish_totals,
        aes(x = nominal_MPs,
@@ -461,9 +483,9 @@ ggplot(fish_totals,
                        name = "") +
   theme_bw()
 
-#### Blank and Recovery Correction ####
+# Blank and recovery correction ####
 
-##### Explore the blanks data #####
+## Prepare the blanks data ####
 
 blanks
 
@@ -478,6 +500,7 @@ blanks2 <-
                            1),
          polymer = ID)
 
+# Make sure every polymer is represented in the data frame
 blanks_new <-
   expand.grid(sample_ID = unique(blanks$sample_ID),
               polymer = c("PE", "PS", "PET"))
@@ -489,8 +512,7 @@ blanks_summary <-
                     "polymer")) %>% 
   mutate(count = replace_na(particle, 0))
 
-# Calculate means
-
+# Calculate means across blanks
 blank_means <-
   blanks_summary %>% 
   group_by(polymer) %>% 
@@ -499,11 +521,11 @@ blank_means <-
 
 blank_means
 
-##### Explore the spike and recovery data #####
+## Prepare the recovery data ####
 
 # Note that I modified the raw data a bit to get it into a format I liked
 # This included deleting on PS particle that was beyond the 10 particles put in
-# Note this in the discussion though - recovery was 11/10 for SR3 PS
+# Recovery was 11/10 for SR3 PS
 
 head(SaR)
 
@@ -535,41 +557,7 @@ SaR_means <-
   summarize(mean_prob_recovery = mean(recovery / 10),
             sd_prob_recovery = sd(recovery / 10))
 
-#### Modeling ####
-
-# See how organ concentration relate to nominal exposure concentrations
-
-# I need to generate a new column in the data for weight of the specific organ
-# for each row
-
-fish_full_summary$organ_weight <- 0
-
-for(i in 1:nrow(fish_full_summary)) {
-  fish_full_summary$organ_weight[i] <-
-    ifelse(fish_full_summary$organ[i] == "Fillet",
-           fish_full_summary$fillet_weight[i],
-           ifelse(fish_full_summary$organ[i] == "GIT",
-                  fish_full_summary$GIT_weight[i],
-                  fish_full_summary$liver_weight[i]))
-}
-
-
-# Scale nominal MP concentration
-
-fish_full_summary <-
-  fish_full_summary %>% 
-  mutate(st_MPs = log(nominal_MPs + 6) / max(log(nominal_MPs + 6)))
-
-# grid for prediction
-reference_grid <-
-  expand.grid(st_MPs = unique(fish_full_summary$st_MPs),
-              polymer = unique(fish_full_summary$polymer))
-
-##### GLMM with addition/subtraction #####
-
-## Modified to use separate models for each organ
-
-###### Corrected data #####
+## Perform the correction ####
 
 fish_full_summary2 <-
   fish_full_summary %>% 
@@ -579,6 +567,7 @@ fish_full_summary2 <-
             by = "polymer") %>% 
   mutate(adjusted_count = floor((count / mean_prob_recovery) - mean_blanks))
 
+# Correct negative values to zero
 fish_full_summary2$adjusted_count[fish_full_summary2$adjusted_count < 0] <- 0
 
 # Summarize correction amount by polymer
@@ -639,6 +628,35 @@ ggplot(fish_full_summary2) +
   geom_abline(aes(intercept = 0, slope = 1)) +
   facet_wrap(polymer ~ organ, scales = "free")
 
+# Modeling corrected concentrations vs. loading concentration ####
+
+# I need to generate a new column in the data for weight of the specific organ
+# for each row
+
+fish_full_summary$organ_weight <- 0
+
+for(i in 1:nrow(fish_full_summary)) {
+  fish_full_summary$organ_weight[i] <-
+    ifelse(fish_full_summary$organ[i] == "Fillet",
+           fish_full_summary$fillet_weight[i],
+           ifelse(fish_full_summary$organ[i] == "GIT",
+                  fish_full_summary$GIT_weight[i],
+                  fish_full_summary$liver_weight[i]))
+}
+
+
+# Scale nominal MP concentration for modeling
+
+fish_full_summary <-
+  fish_full_summary %>% 
+  mutate(st_MPs = log(nominal_MPs + 6) / max(log(nominal_MPs + 6)))
+
+# grid for prediction
+
+reference_grid <-
+  expand.grid(st_MPs = unique(fish_full_summary$st_MPs),
+              polymer = unique(fish_full_summary$polymer))
+
 # Separate data by organ
 
 fish_full_summary2$polymer <- as.character(fish_full_summary2$polymer)
@@ -656,9 +674,7 @@ muscle <-
   fish_full_summary2 %>% 
   filter(organ == "Muscle")
 
-# Now fit the models
-
-###### GITs ####
+## GIT modeling ####
 
 # Poisson, no interactions
 
@@ -728,9 +744,11 @@ GIT_mod7 <-
           ziformula = ~ 1,
           data = GITs)
 
-anova(GIT_mod6, GIT_mod7)
+anova(GIT_mod6, GIT_mod7)  # polymer * MP interaction significant
 
 summary(GIT_mod6)
+
+# Interept model
 
 GIT_mod6.1 <-
   glmmTMB(adjusted_count ~ 1,
@@ -739,10 +757,11 @@ GIT_mod6.1 <-
           data = GITs)
 anova(GIT_mod6, GIT_mod6.1)  # chi2 = 4779, p < 0.001
 
+### Predict from the best model ####
+
 GIT_mod_pred <- 
   as.data.frame(predict_response(GIT_mod6, 
-                                 terms = reference_grid,
-                                 type = "zero_inflated"),
+                                 terms = reference_grid),
                 terms_to_colnames = TRUE) %>% 
   mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
@@ -754,7 +773,7 @@ GIT_mod_sim <-
                 terms_to_colnames = TRUE) %>% 
   mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
-# Plot model predictions
+#### Plot model predictions ####
 
 # Reorder so that it's PE, PS, PET
 
@@ -848,9 +867,11 @@ ggplot(GIT_mod_pred) +
 
 dev.off()
 
-###### Inference ######
+##### Model inference ######
 
 print(predict_response(GIT_mod6, terms = reference_grid), n = Inf)
+
+# Predict across yellow perch length
 
 GIT_length_predict <- 
   as.data.frame(predict_response(GIT_mod6, 
@@ -939,7 +960,7 @@ ggplot(GIT_length_predict) +
 
 dev.off()
 
-###### Livers ####
+## Liver modeling ####
 
 # Poisson, no interactions
 
@@ -948,7 +969,7 @@ liver_mod1 <-
             scale(log(total_length)) +
             (1 | corral) + offset(log(liver_weight)),
           family = poisson(link = "log"),
-          data = livers)
+          data = livers)  # failed to converge
 
 plot(simulateResiduals(liver_mod1))  # pass
 
@@ -961,7 +982,7 @@ liver_mod2 <-
 
 summary(liver_mod2)
 
-plot(simulateResiduals(liver_mod2)) # pass
+plot(simulateResiduals(liver_mod2)) # pass, so use the mod with no interaction
 
 liver_mod3 <-
   glmmTMB(adjusted_count ~ st_MPs + 
@@ -970,8 +991,9 @@ liver_mod3 <-
           family = poisson(link = "log"),
           data = livers)
 
-anova(liver_mod1, liver_mod2)
 anova(liver_mod2, liver_mod3)  # polymer NS p = 0.111
+
+# Intercept model
 
 liver_mod2.1 <-
   glmmTMB(adjusted_count ~ offset(log(liver_weight)),
@@ -979,6 +1001,8 @@ liver_mod2.1 <-
           data = livers)
 
 anova(liver_mod2, liver_mod2.1)  # chi2 = 10.874, p = 0.0539
+
+### Predict from the best model ####
 
 liver_mod_pred <- 
   as.data.frame(predict_response(liver_mod2, 
@@ -997,7 +1021,7 @@ liver_mod_sim <-
                                                  mean(livers$liver_weight))),
                 terms_to_colnames = TRUE)
 
-# Plot model predictions
+#### Plot model preditions ####
 
 liver_mod_pred$polymer <- factor(liver_mod_pred$polymer,
                                  levels = c("PS", "PE", "PET"))
@@ -1065,13 +1089,13 @@ ggplot() +
 
 dev.off()
 
-###### Inference ######
+#### Model inference ####
 
 predict_response(liver_mod1, terms = reference_grid,
                  condition = c(liver_weight =
                                  mean(livers$liver_weight)))
 
-###### Muscle ####
+## Muscle modeling ####
 
 # Poisson, no interactions
 
@@ -1118,6 +1142,8 @@ muscle_mod2.1 <-
 
 anova(muscle_mod2, muscle_mod2.1)  # p = 0.003
 
+### Predict from the best model ####
+
 muscle_mod_pred <- 
   as.data.frame(predict_response(muscle_mod2, 
                                  terms = reference_grid,
@@ -1136,7 +1162,7 @@ muscle_mod_sim <-
                 terms_to_colnames = TRUE) %>% 
   mutate(nominal_MPs = exp(st_MPs * 10.2835) - 6)
 
-# Plot model predictions
+#### Plot model predictions ####
 
 muscle <-
   muscle %>% 
@@ -1231,188 +1257,17 @@ ggplot(muscle_mod_pred) +
 
 dev.off()
 
-###### Inference ######
+### Model nference ######
 
 predict_response(muscle_mod1, terms = reference_grid,
                  condition = c(fillet_weight =
                                  mean(muscle$fillet_weight)))
 
-#### Explore relationships among organs ####
-# Removing this part from ths paper #
-
-# Put data into wide form
-
-fish_wide <-
-  fish_full_summary2 %>% 
-  select(-dummy, -count, -organ_weight, -GIT_weight, -gill_weight, 
-         -log_organ_weight) %>% 
-  pivot_wider(names_from = c(organ),
-              values_from = adjusted_count)
-
-##### GIT and liver #####
-
-tiff("Liver and GIT Comparison.tiff", width = 18, height = 6, units = "cm",
-     res = 500)
-
-set.seed(242)
-
-ggplot(fish_wide) +
-  geom_jitter(aes(x = GIT,
-                  y = Liver / liver_weight,
-                  fill = polymer),
-              shape = 21,
-              height = 0,
-              width = 0.1,
-              alpha = 0.75) +
-  facet_grid(.~polymer) +
-  scale_x_continuous(trans = "log1p",
-                     breaks = c(0, 1, 10, 100, 1000)) +
-  scale_y_continuous(trans = "log1p",
-                     breaks = c(0, 1, 10)) +
-  scale_fill_manual(values = c("yellow", "blue", "pink"),
-                    name = "Polymer") +
-  labs(x = expression(paste("Microplastics "*individual^-1~"in GIT samples")),
-       y = expression(paste("Microplastics "*g^-1~"in liver samples"))) +
-  theme1
-
-dev.off()
-
-liverGITmod1 <- glmmTMB(Liver ~ log(GIT + 1) * polymer + 
-                          scale(log(total_length)) +
-                          offset(log(liver_weight)) +
-                          (1 | corral),
-                        family = poisson(link = "log"),
-                        data = fish_wide)
-
-plot(simulateResiduals(liverGITmod1))
-
-summary(liverGITmod1)
-
-liverGITmod2 <- glmmTMB(Liver ~ log(GIT + 1) + polymer + 
-                          scale(log(total_length)) +
-                          offset(log(fillet_weight)) +
-                          (1 | corral),
-                        family = poisson(link = "log"),
-                        data = fish_wide)
-
-anova(liverGITmod1, liverGITmod2)
-
-plot(simulateResiduals(liverGITmod2))
-
-summary(liverGITmod2)
-
-liverGITmod3 <- glmmTMB(Liver ~ log(GIT + 1) + polymer + 
-                          scale(log(total_length)) +
-                          offset(log(liver_weight)) +
-                          (1 | corral),
-                        family = poisson(link = "log"),
-                        ziformula = ~1,
-                        data = fish_wide)
-
-plot(simulateResiduals(liverGITmod3))
-
-anova(liverGITmod2, liverGITmod3)  # ZIP not better
-
-liverGITmod4 <- glmmTMB(Liver ~ log(GIT + 1) + 
-                          scale(log(total_length)) +
-                          offset(log(liver_weight)) +
-                          (1 | corral),
-                        family = poisson(link = "log"),
-                        data = fish_wide)
-
-anova(liverGITmod2, liverGITmod4)  # polymer not sig. p = 0.3597
-
-test_predictions(liverGITmod2, terms = c("GIT"), by = "polymer")
-
-predict_response(liverGITmod2, terms = c("GIT", "polymer"), 
-                 condition = c(liver_weight = mean(livers$liver_weight)))
-
-##### GIT and muscle #####
-
-tiff("Muscle and GIT Comparison.tiff", width = 18, height = 6, units = "cm",
-     res = 500)
-
-set.seed(242)
-
-ggplot(fish_wide) +
-  geom_jitter(aes(x = GIT,
-                  y = Muscle / fillet_weight,
-                  fill = polymer),
-              shape = 21,
-              height = 0,
-              width = 0.1,
-              alpha = 0.75) +
-  facet_grid(.~polymer) +
-  scale_x_continuous(trans = "log1p",
-                     breaks = c(0, 1, 10, 100, 1000)) +
-  scale_y_continuous(trans = "log1p",
-                     breaks = c(0, 1, 10)) +
-  scale_fill_manual(values = c("yellow", "blue", "pink"),
-                    name = "Polymer") +
-  labs(x = expression(paste("Microplastics "*individual^-1~"in GIT samples")),
-       y = expression(paste("Microplastics "*g^-1~"in muscle samples"))) +
-  theme1
-
-dev.off()
-
-muscleGITmod1 <- glmmTMB(Muscle ~ 
-                           log(GIT + 1) * polymer + 
-                           scale(log(total_length)) +
-                          offset(log(fillet_weight)) +
-                           (1 | corral), 
-                         family = poisson(link = "log"), 
-                         data = fish_wide)
-
-plot(simulateResiduals(muscleGITmod1, integerResponse = TRUE))
-
-summary(muscleGITmod1)
-
-muscleGITmod2 <- glmmTMB(Muscle ~ 
-                           log(GIT + 1) + polymer + 
-                           scale(log(total_length)) +
-                           offset(log(fillet_weight)) +
-                           (1 | corral), 
-                         family = poisson(link = "log"), 
-                         data = fish_wide)
-
-plot(simulateResiduals(muscleGITmod2, integerResponse = TRUE))
-
-muscleGITmod3 <- glmmTMB(Muscle ~ 
-                           log(GIT + 1) + polymer + 
-                           scale(log(total_length)) +
-                           offset(log(fillet_weight)) +
-                           (1 | corral), 
-                         family = poisson(link = "log"), 
-                         ziformula = ~ 1,
-                         data = fish_wide)
-
-plot(simulateResiduals(muscleGITmod3, integerResponse = TRUE))
-
-anova(muscleGITmod2, muscleGITmod3)  # ZIP fit not better but DHARMa better
-
-summary(muscleGITmod3)
-
-muscleGITmod4 <- glmmTMB(Muscle ~ 
-                           log(GIT + 1) + 
-                           scale(log(total_length)) +
-                           offset(log(fillet_weight)) +
-                           (1 | corral), 
-                         family = poisson(link = "log"), 
-                         ziformula = ~ 1,
-                         data = fish_wide)
-
-anova(muscleGITmod3, muscleGITmod4)  # polymer NS chi2 = 3.2388, p = 0.5187
-
-test_predictions(muscleGITmod3, terms = c("GIT", "polymer"))
-
-predict_response(muscleGITmod3, terms = c("GIT", "polymer"), 
-                 condition = c(fillet_weight = mean(fish_wide$fillet_weight)))
-
-
-#### Explore particle size and shape ####
+# Explore particle size and shape ####
 
 str(fish2)
 
+## Set up the data ####
 
 # Isolate rows with particle measurement
 
@@ -1438,9 +1293,7 @@ measurements %>%
             average_width = mean(width),
             sample.size = length(length))
 
-
-
-# Statistical differences??
+## Compare length and width across organs ####
 
 length.mod1 <- glmmTMB(log(length) ~ organ + (1 | sample_ID), data = measurements)
 summary(length.mod1)
@@ -1491,7 +1344,7 @@ test_predictions(predict_response(width.mod1,
                  test = "pairwise",
                  p_adjust = "tukey")
 
-# Plot
+## Plot particle size ####
 measurements$organ <- factor(measurements$organ, 
                              levels = c("GIT", "Muscle", "Liver"))
 
@@ -1566,15 +1419,13 @@ measurements2 %>%
             average.length = mean(length),
             sample.size = length(length))
 
-### Plot ####
-
-### Statistics ####
+## Statistically compare particle length in stock particles vs. organs ####
 
 stockcompare1 <- 
   aov(log(length) ~ organ,
           data = measurements2 %>% filter(organ == "Stock Particles" |
                                             organ == "GIT"))
-plot(simulateResiduals(stockcompare1))
+plot(stockcompare1)  # a bit problematic but not wild
 summary(stockcompare1)
 
 
@@ -1584,6 +1435,8 @@ measurements2 <-
     "GIT", "Muscle", "Liver", "Stock Particles"
   )),
   polymer = factor(polymer, levels = c("PE", "PS", "PET")))
+
+## Plot histograms ####
 
 plotwithstock <-
   ggplot() +
@@ -1608,6 +1461,7 @@ plotwithstock <-
   theme1 +
   theme(legend.position = "none")
 
+## Combine plots ####
 
 tiff("Shape Plot.tiff", width = 18, height = 18, units = "cm",
      res = 500)
@@ -1618,6 +1472,8 @@ plot_grid(fishplot, plotwithstock,
           rel_heights = c(1,1))
 
 dev.off()
+
+# Summarize median particle length across organs
 
 measurements2 %>% 
   group_by(organ, polymer) %>% 
